@@ -18,8 +18,7 @@ export function ChatInterface() {
     const timestamp = new Date().toLocaleTimeString();
     
     try {
-      // Add mode: "no-cors" to handle CORS restrictions
-      await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
+      await fetch("https://hooks.zapier.com/hooks/catch/17752322/2auhtr4/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
