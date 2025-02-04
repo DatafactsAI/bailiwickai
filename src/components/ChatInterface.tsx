@@ -24,15 +24,14 @@ export function ChatInterface() {
         headers: {
           "Content-Type": "application/json",
         },
-        mode: "no-cors",
+        mode: "no-cors", // This will prevent CORS errors but also means we won't get response details
         body: JSON.stringify({
           message: content,
           timestamp: new Date().toISOString(),
         }),
       });
 
-      // Since we're using no-cors, we won't get a proper response
-      // Instead, we'll add the message to the UI and show a success toast
+      // Since we're using no-cors, we'll assume success if no error is thrown
       setMessages((prev) => [...prev, { content, timestamp }]);
       
       toast({
@@ -43,7 +42,7 @@ export function ChatInterface() {
       console.error("Error sending message:", error);
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again.",
+        description: "Failed to send message. Please check if your Zapier webhook is active and try again.",
         variant: "destructive",
       });
     } finally {
