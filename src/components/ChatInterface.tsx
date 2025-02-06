@@ -21,29 +21,24 @@ export function ChatInterface() {
     console.log(`[${timestamp}] Sending message to Zapier:`, content);
     
     try {
+      // Simplified payload and removed Content-Type header
       const response = await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         mode: "no-cors",
         body: JSON.stringify({
-          message: content,
-          timestamp: new Date().toISOString(),
+          message: content
         }),
       });
 
       const requestDuration = Date.now() - requestStartTime;
       console.log(`[${timestamp}] Request completed in ${requestDuration}ms`);
       
-      // With no-cors mode, status will be 0 and type will be 'opaque' - this is normal
       console.log(`[${timestamp}] Response details:`, {
         type: response.type,
         status: response.status,
         ok: response.ok
       });
 
-      // Add message to local state
       setMessages((prev) => [...prev, { content, timestamp }]);
       
       toast({
