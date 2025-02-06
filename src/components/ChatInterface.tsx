@@ -22,13 +22,7 @@ export function ChatInterface() {
     console.log(`[${timestamp}] Sending message to Zapier:`, content);
     
     try {
-      // Get the webhook URL from environment
-      const webhookUrl = import.meta.env.VITE_ZAPIER_WEBHOOK_URL;
-      if (!webhookUrl) {
-        throw new Error("Zapier webhook URL not configured");
-      }
-
-      const response = await fetch(webhookUrl, {
+      const response = await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
         method: "POST",
         mode: "no-cors",
         body: JSON.stringify({
