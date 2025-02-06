@@ -16,9 +16,12 @@ export function ChatInterface() {
   const handleSend = async (content: string) => {
     setIsLoading(true);
     const timestamp = new Date().toLocaleTimeString();
+    const requestStartTime = Date.now();
+    
+    console.log(`[${timestamp}] Attempting to send message:`, content);
     
     try {
-      await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
+      const response = await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -30,14 +33,24 @@ export function ChatInterface() {
         }),
       });
 
+      const requestDuration = Date.now() - requestStartTime;
+      console.log(`[${timestamp}] Request completed in ${requestDuration}ms`);
+      console.log(`[${timestamp}] Response type:`, response.type);
+      console.log(`[${timestamp}] Response status:`, response.status);
+
       setMessages((prev) => [...prev, { content, timestamp }]);
       
       toast({
         title: "Message Sent",
-        description: "Your message was successfully sent to Zapier.",
+        description: `Message sent to Zapier (took ${requestDuration}ms)`,
       });
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error(`[${timestamp}] Error details:`, {
+        error,
+        messageContent: content,
+        timeElapsed: Date.now() - requestStartTime
+      });
+      
       toast({
         title: "Error",
         description: "Failed to send message. Please check if your Zapier webhook is active and try again.",
