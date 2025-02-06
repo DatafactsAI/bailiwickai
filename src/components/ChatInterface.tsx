@@ -18,7 +18,7 @@ export function ChatInterface() {
     const timestamp = new Date().toLocaleTimeString();
     const requestStartTime = Date.now();
     
-    console.log(`[${timestamp}] Attempting to send message:`, content);
+    console.log(`[${timestamp}] Sending message to Zapier:`, content);
     
     try {
       const response = await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
@@ -35,14 +35,20 @@ export function ChatInterface() {
 
       const requestDuration = Date.now() - requestStartTime;
       console.log(`[${timestamp}] Request completed in ${requestDuration}ms`);
-      console.log(`[${timestamp}] Response type:`, response.type);
-      console.log(`[${timestamp}] Response status:`, response.status);
+      
+      // With no-cors mode, status will be 0 and type will be 'opaque' - this is normal
+      console.log(`[${timestamp}] Response details:`, {
+        type: response.type,
+        status: response.status,
+        ok: response.ok
+      });
 
+      // Add message to local state
       setMessages((prev) => [...prev, { content, timestamp }]);
       
       toast({
         title: "Message Sent",
-        description: `Message sent to Zapier (took ${requestDuration}ms)`,
+        description: "Message sent to Zapier. Please check your Zap's history to confirm it was received.",
       });
     } catch (error) {
       console.error(`[${timestamp}] Error details:`, {
@@ -53,7 +59,7 @@ export function ChatInterface() {
       
       toast({
         title: "Error",
-        description: "Failed to send message. Please check if your Zapier webhook is active and try again.",
+        description: "There was an error sending your message. Please verify your Zapier webhook URL and try again.",
         variant: "destructive",
       });
     } finally {
