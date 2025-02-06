@@ -22,7 +22,13 @@ export function ChatInterface() {
     console.log(`[${timestamp}] Sending message to Zapier:`, content);
     
     try {
-      const response = await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
+      // Get the webhook URL from environment
+      const webhookUrl = import.meta.env.VITE_ZAPIER_WEBHOOK_URL;
+      if (!webhookUrl) {
+        throw new Error("Zapier webhook URL not configured");
+      }
+
+      const response = await fetch(webhookUrl, {
         method: "POST",
         mode: "no-cors",
         body: JSON.stringify({
@@ -40,6 +46,12 @@ export function ChatInterface() {
         description: "Message sent to Zapier successfully.",
       });
     } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message to Zapier.",
+        variant: "destructive",
+      });
       setMessages((prev) => [...prev, { content, timestamp, type: "sent" }]);
     } finally {
       setIsLoading(false);
