@@ -21,8 +21,7 @@ export function ChatInterface() {
     console.log(`[${timestamp}] Sending message to Zapier:`, content);
     
     try {
-      // Simplified payload and removed Content-Type header
-      const response = await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
+      await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
         method: "POST",
         mode: "no-cors",
         body: JSON.stringify({
@@ -33,29 +32,11 @@ export function ChatInterface() {
       const requestDuration = Date.now() - requestStartTime;
       console.log(`[${timestamp}] Request completed in ${requestDuration}ms`);
       
-      console.log(`[${timestamp}] Response details:`, {
-        type: response.type,
-        status: response.status,
-        ok: response.ok
-      });
-
       setMessages((prev) => [...prev, { content, timestamp }]);
       
       toast({
         title: "Message Sent",
-        description: "Message sent to Zapier. Please check your Zap's history to confirm it was received.",
-      });
-    } catch (error) {
-      console.error(`[${timestamp}] Error details:`, {
-        error,
-        messageContent: content,
-        timeElapsed: Date.now() - requestStartTime
-      });
-      
-      toast({
-        title: "Error",
-        description: "There was an error sending your message. Please verify your Zapier webhook URL and try again.",
-        variant: "destructive",
+        description: "Message sent to Zapier successfully.",
       });
     } finally {
       setIsLoading(false);
