@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 interface ChatMessage {
   content: string;
   timestamp: string;
+  type: "sent" | "received";
 }
 
 export function ChatInterface() {
@@ -29,30 +30,42 @@ export function ChatInterface() {
         }),
       });
 
-      // Since we're using no-cors, we won't get a proper response
-      // but we know the request was sent successfully
       const requestDuration = Date.now() - requestStartTime;
       console.log(`[${timestamp}] Request completed in ${requestDuration}ms`);
       
-      setMessages((prev) => [...prev, { content, timestamp }]);
+      setMessages((prev) => [...prev, { content, timestamp, type: "sent" }]);
       
       toast({
         title: "Message Sent",
         description: "Message sent to Zapier successfully.",
       });
     } catch (error) {
-      // Silently handle the error and still update messages since we know it's working
-      setMessages((prev) => [...prev, { content, timestamp }]);
+      setMessages((prev) => [...prev, { content, timestamp, type: "sent" }]);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Function to handle incoming webhook messages
+  const handleWebhookMessage = (message: string) => {
+    const timestamp = new Date().toLocaleTimeString();
+    setMessages((prev) => [...prev, { content: message, timestamp, type: "received" }]);
+    toast({
+      title: "New Message",
+      description: "Received a new message from Zapier",
+    });
   };
 
   return (
     <div className="flex flex-col h-[600px] max-w-2xl mx-auto border rounded-lg shadow-sm">
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         {messages.map((msg, index) => (
-          <Message key={index} content={msg.content} timestamp={msg.timestamp} />
+          <Message 
+            key={index} 
+            content={msg.content} 
+            timestamp={msg.timestamp} 
+            type={msg.type}
+          />
         ))}
       </div>
       <MessageInput onSend={handleSend} isLoading={isLoading} />
