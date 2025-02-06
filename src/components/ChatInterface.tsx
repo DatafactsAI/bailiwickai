@@ -18,19 +18,18 @@ export function ChatInterface() {
     const timestamp = new Date().toLocaleTimeString();
     
     try {
-      await fetch("https://hooks.zapier.com/hooks/catch/17752322/2auhtr4/", {
+      await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        mode: "no-cors", // This will prevent CORS errors but also means we won't get response details
+        mode: "no-cors",
         body: JSON.stringify({
           message: content,
           timestamp: new Date().toISOString(),
         }),
       });
 
-      // Since we're using no-cors, we'll assume success if no error is thrown
       setMessages((prev) => [...prev, { content, timestamp }]);
       
       toast({
