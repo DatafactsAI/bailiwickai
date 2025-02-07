@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
+import { useState, FormEvent } from "react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { useState } from "react";
 
 interface MessageInputProps {
   onSend: (message: string) => void;
@@ -11,10 +11,10 @@ interface MessageInputProps {
 export function MessageInput({ onSend, isLoading }: MessageInputProps) {
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (message.trim()) {
-      onSend(message);
+      onSend(message.trim());
       setMessage("");
     }
   };
@@ -32,7 +32,7 @@ export function MessageInput({ onSend, isLoading }: MessageInputProps) {
         <Button 
           type="submit" 
           disabled={isLoading || !message.trim()}
-          className="bg-[#1A1F2C] hover:bg-[#2A2F3C]"
+          className="bg-[#33C3F0] hover:bg-[#0FA0CE]"
         >
           <Send className="h-4 w-4" />
         </Button>
