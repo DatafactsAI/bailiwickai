@@ -16,7 +16,7 @@ export function Message({ content, timestamp, type }: MessageProps) {
         "p-3 rounded-lg max-w-[80%] break-words",
         type === "received" 
           ? "bg-gray-100 text-gray-900" 
-          : "bg-[#0EA5E9] text-white"
+          : "bg-[#0284C7] text-white"
       )}>
         {content}
       </div>

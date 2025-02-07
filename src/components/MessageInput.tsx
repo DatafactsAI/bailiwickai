@@ -32,7 +32,7 @@ export function MessageInput({ onSend, isLoading }: MessageInputProps) {
         <Button 
           type="submit" 
           disabled={isLoading || !message.trim()}
-          className="bg-[#0EA5E9] hover:bg-[#0284C7]"
+          className="bg-[#0284C7] hover:bg-[#0369A1]"
         >
           <Send className="h-4 w-4" />
         </Button>
