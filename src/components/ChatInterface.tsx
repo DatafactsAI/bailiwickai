@@ -17,9 +17,6 @@ export function ChatInterface() {
   const handleSend = async (content: string) => {
     setIsLoading(true);
     const timestamp = new Date().toLocaleTimeString();
-    const requestStartTime = Date.now();
-    
-    console.log(`[${timestamp}] Sending message to Zapier:`, content);
     
     try {
       const response = await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
@@ -29,9 +26,6 @@ export function ChatInterface() {
           message: content
         }),
       });
-
-      const requestDuration = Date.now() - requestStartTime;
-      console.log(`[${timestamp}] Request completed in ${requestDuration}ms`);
       
       setMessages((prev) => [...prev, { content, timestamp, type: "sent" }]);
       
@@ -46,24 +40,13 @@ export function ChatInterface() {
         description: "Failed to send message to Zapier.",
         variant: "destructive",
       });
-      setMessages((prev) => [...prev, { content, timestamp, type: "sent" }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Function to handle incoming webhook messages
-  const handleWebhookMessage = (message: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    setMessages((prev) => [...prev, { content: message, timestamp, type: "received" }]);
-    toast({
-      title: "New Message",
-      description: "Received a new message from Zapier",
-    });
-  };
-
   return (
-    <div className="flex flex-col h-[600px] max-w-2xl mx-auto border rounded-lg shadow-sm">
+    <div className="flex flex-col h-full bg-white">
       <div className="flex-1 p-4 space-y-4 overflow-y-auto">
         {messages.map((msg, index) => (
           <Message 
