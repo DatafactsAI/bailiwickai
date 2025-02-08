@@ -21,6 +21,7 @@ export function ChatInterface() {
   // Fetch existing messages on component mount
   useEffect(() => {
     const fetchMessages = async () => {
+      console.log("Fetching existing messages...");
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -32,6 +33,7 @@ export function ChatInterface() {
       }
 
       if (data) {
+        console.log("Fetched messages:", data);
         setMessages(data.map(msg => ({
           id: msg.id,
           content: msg.content,
@@ -46,6 +48,7 @@ export function ChatInterface() {
 
   // Set up real-time subscription
   useEffect(() => {
+    console.log("Setting up real-time subscription...");
     const channel = supabase
       .channel('schema-db-changes')
       .on(
@@ -60,10 +63,14 @@ export function ChatInterface() {
           const newMsg = payload.new as { id: string; content: string; timestamp: string; type: string };
           
           if (payload.eventType === 'INSERT') {
+            console.log('Processing new message:', newMsg);
             setMessages(prev => {
               // Check if message already exists
               const exists = prev.some(msg => msg.id === newMsg.id);
-              if (exists) return prev;
+              if (exists) {
+                console.log('Message already exists, skipping:', newMsg.id);
+                return prev;
+              }
               
               const formattedMessage: ChatMessage = {
                 id: newMsg.id,
@@ -72,6 +79,7 @@ export function ChatInterface() {
                 type: newMsg.type as "sent" | "received"
               };
               
+              console.log('Adding new message to state:', formattedMessage);
               return [...prev, formattedMessage];
             });
           }
@@ -79,12 +87,16 @@ export function ChatInterface() {
       )
       .subscribe();
 
+    console.log("Real-time subscription initialized");
+
     return () => {
+      console.log("Cleaning up real-time subscription");
       supabase.removeChannel(channel);
     };
   }, []);
 
   const handleSend = async (content: string) => {
+    console.log("Sending new message:", content);
     setIsLoading(true);
     const timestamp = new Date().toISOString();
     
@@ -104,6 +116,7 @@ export function ChatInterface() {
 
       if (error) throw error;
 
+      console.log("Message stored successfully:", data);
       toast({
         title: "Message Sent",
         description: "Message sent successfully.",
