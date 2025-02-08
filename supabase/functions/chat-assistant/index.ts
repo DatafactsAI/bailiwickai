@@ -72,13 +72,7 @@ serve(async (req) => {
     if (!openAIResponse.ok) {
       const errorText = await openAIResponse.text();
       console.error('OpenAI API error response:', errorText);
-      return new Response(
-        JSON.stringify({ error: `OpenAI API error: ${openAIResponse.status} ${errorText}` }), 
-        { 
-          status: openAIResponse.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      throw new Error(`OpenAI API error: ${openAIResponse.status} ${errorText}`);
     }
 
     const data = await openAIResponse.json();
@@ -86,13 +80,7 @@ serve(async (req) => {
 
     if (!data.choices?.[0]?.message?.content) {
       console.error('Invalid response structure from OpenAI:', data);
-      return new Response(
-        JSON.stringify({ error: 'Invalid response from OpenAI' }), 
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      throw new Error('Invalid response from OpenAI');
     }
 
     const aiResponse = data.choices[0].message.content;
@@ -111,13 +99,7 @@ serve(async (req) => {
 
     if (dbError) {
       console.error('Supabase storage error:', dbError);
-      return new Response(
-        JSON.stringify({ error: 'Failed to store response' }), 
-        { 
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      throw new Error('Failed to store response');
     }
 
     console.log('Successfully stored response in Supabase');
@@ -131,6 +113,8 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in chat-assistant function:', error);
     console.error('Error stack trace:', error.stack);
+    
+    // Ensure we always return a proper response, even in error cases
     return new Response(
       JSON.stringify({ 
         error: error.message || 'An unexpected error occurred',
