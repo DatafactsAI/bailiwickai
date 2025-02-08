@@ -46,56 +46,43 @@ export function ChatInterface() {
 
   // Set up real-time subscription
   useEffect(() => {
-    let channel: RealtimeChannel;
-
-    const setupSubscription = async () => {
-      // Enable real-time for the messages table
-      if (messages[0]?.id) {
-        await supabase.from('messages').update({ id: messages[0].id }).eq('id', messages[0].id);
-      }
-
-      channel = supabase
-        .channel('schema-db-changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'messages'
-          },
-          (payload) => {
-            console.log('Real-time update received:', payload);
-            if (payload.new && 'id' in payload.new) {
-              const newMsg = payload.new as { id: string; content: string; timestamp: string; type: string };
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages'
+        },
+        (payload) => {
+          console.log('Real-time update received:', payload);
+          const newMsg = payload.new as { id: string; content: string; timestamp: string; type: string };
+          
+          if (payload.eventType === 'INSERT') {
+            setMessages(prev => {
+              // Check if message already exists
+              const exists = prev.some(msg => msg.id === newMsg.id);
+              if (exists) return prev;
               
-              setMessages(prev => {
-                // Check if message already exists
-                const exists = prev.some(msg => msg.id === newMsg.id);
-                if (exists) return prev;
-                
-                const formattedMessage: ChatMessage = {
-                  id: newMsg.id,
-                  content: newMsg.content,
-                  timestamp: new Date(newMsg.timestamp).toLocaleTimeString(),
-                  type: newMsg.type as "sent" | "received"
-                };
-                
-                return [...prev, formattedMessage];
-              });
-            }
+              const formattedMessage: ChatMessage = {
+                id: newMsg.id,
+                content: newMsg.content,
+                timestamp: new Date(newMsg.timestamp).toLocaleTimeString(),
+                type: newMsg.type as "sent" | "received"
+              };
+              
+              return [...prev, formattedMessage];
+            });
           }
-        )
-        .subscribe();
-    };
-
-    setupSubscription();
+        }
+      )
+      .subscribe();
 
     return () => {
-      if (channel) {
-        supabase.removeChannel(channel);
-      }
+      supabase.removeChannel(channel);
     };
-  }, [messages]);
+  }, []);
 
   const handleSend = async (content: string) => {
     setIsLoading(true);
