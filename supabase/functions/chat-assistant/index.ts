@@ -57,14 +57,14 @@ serve(async (req) => {
     const timeout = setTimeout(() => controller.abort(), 30000);
 
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${openAIApiKey}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'gpt-4o-mini-2024-07-18',
           messages: [
             {
               role: 'system',
@@ -79,19 +79,21 @@ serve(async (req) => {
             },
             { role: 'user', content: message }
           ],
+          temperature: 0.7,
+          max_tokens: 500
         }),
         signal: controller.signal,
       });
 
       clearTimeout(timeout);
 
-      if (!response.ok) {
-        const errorText = await response.text();
+      if (!openAIResponse.ok) {
+        const errorText = await openAIResponse.text();
         console.error('OpenAI API error response:', errorText);
-        throw new Error(`OpenAI API error: ${response.status} ${errorText}`);
+        throw new Error(`OpenAI API error: ${openAIResponse.status} ${errorText}`);
       }
 
-      const data = await response.json();
+      const data = await openAIResponse.json();
       console.log('OpenAI API response:', data);
 
       if (!data.choices?.[0]?.message?.content) {
@@ -102,6 +104,7 @@ serve(async (req) => {
       const aiResponse = formatResponse(data.choices[0].message.content);
       console.log('Formatted AI response:', aiResponse);
 
+      console.log('Storing response in Supabase');
       const { error: dbError } = await supabase
         .from('messages')
         .insert([
@@ -116,6 +119,7 @@ serve(async (req) => {
         console.error('Supabase storage error:', dbError);
         throw dbError;
       }
+      console.log('Successfully stored response in Supabase');
 
       return new Response(JSON.stringify({ success: true, response: aiResponse }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
