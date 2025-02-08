@@ -15,14 +15,20 @@ const corsHeaders = {
 };
 
 function formatResponse(text: string): string {
-  // Remove any markdown code blocks if present
+  // Remove any markdown code blocks
   text = text.replace(/```[a-z]*\n([\s\S]*?)\n```/g, '$1');
   
-  // Add line breaks for better readability
-  text = text.replace(/\n\n/g, '\n');
+  // Improve heading formatting
+  text = text.replace(/###\s+([^\n]+)/g, '\n$1:\n');
   
-  // Ensure proper spacing around bullet points
-  text = text.replace(/•/g, '\n•');
+  // Format bullet points consistently
+  text = text.replace(/[•\-\*]\s+([^\n]+)/g, '\n• $1');
+  
+  // Add spacing around sections
+  text = text.replace(/\n([A-Z][^:]+):/g, '\n\n$1:');
+  
+  // Clean up excessive new lines
+  text = text.replace(/\n{3,}/g, '\n\n');
   
   // Remove any extra whitespace
   text = text.trim();
@@ -31,7 +37,6 @@ function formatResponse(text: string): string {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -39,7 +44,6 @@ serve(async (req) => {
   try {
     console.log('Starting chat-assistant function execution');
     
-    // Parse request body
     const body = await req.json().catch(e => {
       console.error('Error parsing request body:', e);
       throw new Error('Invalid request body');
@@ -53,7 +57,6 @@ serve(async (req) => {
       throw new Error('Message is required');
     }
 
-    // Call OpenAI API
     console.log('Calling OpenAI API with message:', message);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -66,7 +69,15 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful financial planning assistant. Provide clear, well-structured responses with proper formatting. Use bullet points where appropriate, and organize information in an easy-to-read manner. When asked about capitals of states or countries, also provide brief financial or economic information about that location.'
+            content: `You are a helpful financial planning assistant. Format your responses clearly and professionally:
+            - Use proper spacing between sections
+            - Start each major section with a clear heading
+            - Use bullet points (•) for lists
+            - Keep paragraphs short and focused
+            - Add a brief introduction before diving into details
+            - When discussing locations, include relevant financial or economic information
+            - Use clear language and avoid jargon
+            - Separate different topics with line breaks`
           },
           { role: 'user', content: message }
         ],
@@ -90,7 +101,6 @@ serve(async (req) => {
     const aiResponse = formatResponse(data.choices[0].message.content);
     console.log('Formatted AI response:', aiResponse);
 
-    // Store in Supabase
     console.log('Storing response in Supabase');
     const { error: dbError } = await supabase
       .from('messages')
@@ -123,3 +133,4 @@ serve(async (req) => {
     });
   }
 });
+
