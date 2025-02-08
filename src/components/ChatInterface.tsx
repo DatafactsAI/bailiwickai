@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Message } from "./Message";
 import { MessageInput } from "./MessageInput";
@@ -121,25 +120,19 @@ export function ChatInterface() {
       console.log("Message stored successfully:", messageData);
       
       // Call Edge Function to get AI response
-      const functionResponse = await fetch('https://xkcomymfasugmwrkrewa.functions.supabase.co/chat-assistant', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({ message: content }),
+      const functionResponse = await supabase.functions.invoke('chat-assistant', {
+        body: { message: content }
       });
 
-      if (!functionResponse.ok) {
-        const errorData = await functionResponse.json();
-        console.error("Edge function error:", errorData);
-        throw new Error(errorData.error || "Failed to get AI response");
+      console.log("Edge function response:", functionResponse);
+
+      if (functionResponse.error) {
+        console.error("Edge function error:", functionResponse.error);
+        throw new Error(functionResponse.error.message || "Failed to get AI response");
       }
 
-      const responseData = await functionResponse.json();
-      console.log("AI response received:", responseData);
-
-      if (!responseData.response) {
+      if (!functionResponse.data?.response) {
+        console.error("Invalid response from AI:", functionResponse.data);
         throw new Error("Invalid response from AI");
       }
 
