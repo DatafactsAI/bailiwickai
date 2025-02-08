@@ -1,9 +1,10 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Message } from "./Message";
 import { MessageInput } from "./MessageInput";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 interface ChatMessage {
   id: string;
@@ -16,6 +17,76 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  // Fetch existing messages on component mount
+  useEffect(() => {
+    const fetchMessages = async () => {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .order('timestamp', { ascending: true });
+
+      if (error) {
+        console.error("Error fetching messages:", error);
+        return;
+      }
+
+      if (data) {
+        setMessages(data.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp).toLocaleTimeString()
+        })));
+      }
+    };
+
+    fetchMessages();
+  }, []);
+
+  // Set up real-time subscription
+  useEffect(() => {
+    let channel: RealtimeChannel;
+
+    const setupSubscription = async () => {
+      // Enable real-time for the messages table
+      await supabase.from('messages').update({ id: messages[0]?.id }).eq('id', messages[0]?.id || '');
+
+      channel = supabase
+        .channel('schema-db-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'messages'
+          },
+          (payload) => {
+            console.log('Real-time update received:', payload);
+            const { new: newMessage } = payload;
+            if (newMessage) {
+              setMessages(prev => {
+                // Check if message already exists
+                const exists = prev.some(msg => msg.id === newMessage.id);
+                if (exists) return prev;
+                
+                return [...prev, {
+                  ...newMessage,
+                  timestamp: new Date(newMessage.timestamp).toLocaleTimeString()
+                }];
+              });
+            }
+          }
+        )
+        .subscribe();
+    };
+
+    setupSubscription();
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
+  }, []);
 
   const handleSend = async (content: string) => {
     setIsLoading(true);
@@ -37,14 +108,6 @@ export function ChatInterface() {
 
       if (error) throw error;
 
-      // Add the message to local state
-      setMessages((prev) => [...prev, { 
-        id: data.id,
-        content, 
-        timestamp: new Date(timestamp).toLocaleTimeString(), 
-        type: "sent" 
-      }]);
-      
       toast({
         title: "Message Sent",
         description: "Message sent successfully.",
