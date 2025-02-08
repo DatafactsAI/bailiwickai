@@ -45,6 +45,7 @@ serve(async (req) => {
     console.log('Starting chat-assistant function execution');
     
     const { message } = await req.json();
+    console.log('Received request body:', { message });
 
     if (!message) {
       throw new Error('Message is required');
@@ -54,7 +55,10 @@ serve(async (req) => {
     
     // Add timeout to the fetch request
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
+    const timeout = setTimeout(() => {
+      controller.abort();
+      console.log('Request timed out after 30 seconds');
+    }, 30000);
 
     try {
       const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -86,7 +90,9 @@ serve(async (req) => {
       });
 
       clearTimeout(timeout);
-
+      
+      console.log('OpenAI API status:', openAIResponse.status);
+      
       if (!openAIResponse.ok) {
         const errorText = await openAIResponse.text();
         console.error('OpenAI API error response:', errorText);
@@ -132,6 +138,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in chat-assistant function:', error);
+    console.error('Error stack trace:', error.stack);
     return new Response(JSON.stringify({ 
       error: error.message || 'An unexpected error occurred',
       stack: error.stack 
