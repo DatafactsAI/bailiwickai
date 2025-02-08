@@ -20,9 +20,12 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Processing chat request...');
     const { message } = await req.json();
+    console.log('Received message:', message);
 
     // Call OpenAI API
+    console.log('Calling OpenAI API...');
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -41,10 +44,20 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('OpenAI API error:', error);
+      throw new Error(`OpenAI API error: ${error}`);
+    }
+
     const data = await response.json();
+    console.log('OpenAI response received:', data);
+    
     const aiResponse = data.choices[0].message.content;
+    console.log('AI response content:', aiResponse);
 
     // Store AI response in database
+    console.log('Storing response in Supabase...');
     const { error: dbError } = await supabase
       .from('messages')
       .insert([
@@ -55,13 +68,17 @@ serve(async (req) => {
         }
       ]);
 
-    if (dbError) throw dbError;
+    if (dbError) {
+      console.error('Database error:', dbError);
+      throw dbError;
+    }
 
-    return new Response(JSON.stringify({ success: true }), {
+    console.log('Response stored successfully');
+    return new Response(JSON.stringify({ success: true, response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in chat-assistant function:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
