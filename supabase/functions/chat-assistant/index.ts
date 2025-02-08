@@ -14,6 +14,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+function formatResponse(text: string): string {
+  // Remove any markdown code blocks if present
+  text = text.replace(/```[a-z]*\n([\s\S]*?)\n```/g, '$1');
+  
+  // Add line breaks for better readability
+  text = text.replace(/\n\n/g, '\n');
+  
+  // Ensure proper spacing around bullet points
+  text = text.replace(/•/g, '\n•');
+  
+  // Remove any extra whitespace
+  text = text.trim();
+  
+  return text;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -46,11 +62,11 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful financial planning assistant. When asked about capitals of states or countries, also provide brief financial or economic information about that location.'
+            content: 'You are a helpful financial planning assistant. Provide clear, well-structured responses with proper formatting. Use bullet points where appropriate, and organize information in an easy-to-read manner. When asked about capitals of states or countries, also provide brief financial or economic information about that location.'
           },
           { role: 'user', content: message }
         ],
@@ -71,8 +87,8 @@ serve(async (req) => {
       throw new Error('Invalid response from OpenAI');
     }
 
-    const aiResponse = data.choices[0].message.content;
-    console.log('Generated AI response:', aiResponse);
+    const aiResponse = formatResponse(data.choices[0].message.content);
+    console.log('Formatted AI response:', aiResponse);
 
     // Store in Supabase
     console.log('Storing response in Supabase');
