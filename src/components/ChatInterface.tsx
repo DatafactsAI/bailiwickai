@@ -45,15 +45,6 @@ export function ChatInterface() {
         type: "sent" 
       }]);
       
-      // Send to Zapier webhook
-      await fetch("https://hooks.zapier.com/hooks/catch/17752322/250wpvr/", {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify({
-          message: content
-        }),
-      });
-      
       toast({
         title: "Message Sent",
         description: "Message sent successfully.",
