@@ -15,17 +15,30 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    console.log('Processing chat request...');
-    const { message } = await req.json();
-    console.log('Received message:', message);
+    console.log('Starting chat-assistant function execution');
+    
+    // Parse request body
+    const body = await req.json().catch(e => {
+      console.error('Error parsing request body:', e);
+      throw new Error('Invalid request body');
+    });
+    
+    console.log('Received request body:', body);
+    const { message } = body;
+
+    if (!message) {
+      console.error('No message provided in request');
+      throw new Error('Message is required');
+    }
 
     // Call OpenAI API
-    console.log('Calling OpenAI API...');
+    console.log('Calling OpenAI API with message:', message);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -33,7 +46,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',  // Fixed the model name
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
@@ -45,19 +58,24 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('OpenAI API error:', error);
-      throw new Error(`OpenAI API error: ${error}`);
+      const errorText = await response.text();
+      console.error('OpenAI API error:', errorText);
+      throw new Error(`OpenAI API error: ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('OpenAI response received:', data);
-    
-    const aiResponse = data.choices[0].message.content;
-    console.log('AI response content:', aiResponse);
+    console.log('OpenAI API response:', data);
 
-    // Store AI response in database
-    console.log('Storing response in Supabase...');
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid response from OpenAI:', data);
+      throw new Error('Invalid response from OpenAI');
+    }
+
+    const aiResponse = data.choices[0].message.content;
+    console.log('Generated AI response:', aiResponse);
+
+    // Store in Supabase
+    console.log('Storing response in Supabase');
     const { error: dbError } = await supabase
       .from('messages')
       .insert([
@@ -69,17 +87,21 @@ serve(async (req) => {
       ]);
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      console.error('Supabase storage error:', dbError);
       throw dbError;
     }
 
-    console.log('Response stored successfully');
+    console.log('Successfully stored response in Supabase');
     return new Response(JSON.stringify({ success: true, response: aiResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
+
   } catch (error) {
     console.error('Error in chat-assistant function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: error.message,
+      stack: error.stack 
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
