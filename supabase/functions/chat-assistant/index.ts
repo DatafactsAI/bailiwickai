@@ -3,11 +3,16 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
 
+console.log('Starting function initialization...');
+
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
+console.log('Environment variables loaded');
+
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
+console.log('Supabase client initialized');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +20,10 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('==== New Request Received ====');
+  console.log('Request URL:', req.url);
+  console.log('Request method:', req.method);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     console.log('Handling OPTIONS request');
@@ -23,11 +32,13 @@ serve(async (req) => {
 
   try {
     console.log('Starting chat-assistant function execution');
-    console.log('Request method:', req.method);
     console.log('Request headers:', Object.fromEntries(req.headers.entries()));
     
-    const { message } = await req.json();
-    console.log('Received request body:', { message });
+    const body = await req.json();
+    console.log('Request body:', body);
+    
+    const { message } = body;
+    console.log('Extracted message:', message);
 
     if (!message) {
       console.error('No message provided in request');
