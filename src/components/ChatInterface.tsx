@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { Message } from "./Message";
 import { MessageInput } from "./MessageInput";
@@ -94,11 +95,12 @@ export function ChatInterface() {
   }, []);
 
   const handleSend = async (content: string) => {
-    console.log("Sending new message:", content);
+    console.log("Starting handleSend with content:", content);
     setIsLoading(true);
     const timestamp = new Date().toISOString();
     
     try {
+      console.log("Storing user message in Supabase...");
       // Store user message in Supabase
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
@@ -119,12 +121,16 @@ export function ChatInterface() {
 
       console.log("Message stored successfully:", messageData);
       
+      console.log("Calling chat-assistant edge function...");
       // Call Edge Function to get AI response
       const functionResponse = await supabase.functions.invoke('chat-assistant', {
         body: { message: content }
+      }).catch(error => {
+        console.error("Error invoking function:", error);
+        throw error;
       });
 
-      console.log("Edge function response:", functionResponse);
+      console.log("Edge function response received:", functionResponse);
 
       if (functionResponse.error) {
         console.error("Edge function error:", functionResponse.error);
