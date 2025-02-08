@@ -101,7 +101,7 @@ export function ChatInterface() {
     
     try {
       // Store user message in Supabase
-      const { data, error } = await supabase
+      const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert([
           {
@@ -113,22 +113,34 @@ export function ChatInterface() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (messageError) {
+        console.error("Error storing message:", messageError);
+        throw new Error("Failed to store message");
+      }
 
-      console.log("Message stored successfully:", data);
+      console.log("Message stored successfully:", messageData);
       
       // Call Edge Function to get AI response
-      const response = await fetch('https://xkcomymfasugmwrkrewa.functions.supabase.co/chat-assistant', {
+      const functionResponse = await fetch('https://xkcomymfasugmwrkrewa.functions.supabase.co/chat-assistant', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
         },
         body: JSON.stringify({ message: content }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to get AI response');
+      if (!functionResponse.ok) {
+        const errorData = await functionResponse.json();
+        console.error("Edge function error:", errorData);
+        throw new Error(errorData.error || "Failed to get AI response");
+      }
+
+      const responseData = await functionResponse.json();
+      console.log("AI response received:", responseData);
+
+      if (!responseData.response) {
+        throw new Error("Invalid response from AI");
       }
 
       toast({
@@ -136,10 +148,10 @@ export function ChatInterface() {
         description: "Message sent successfully.",
       });
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error in handleSend:", error);
       toast({
         title: "Error",
-        description: "Failed to send message.",
+        description: error.message || "Failed to send message.",
         variant: "destructive",
       });
     } finally {
