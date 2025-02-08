@@ -4,7 +4,6 @@ import { Message } from "./Message";
 import { MessageInput } from "./MessageInput";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { RealtimeChannel } from "@supabase/supabase-js";
 
 interface ChatMessage {
   id: string;
@@ -101,7 +100,7 @@ export function ChatInterface() {
     const timestamp = new Date().toISOString();
     
     try {
-      // Store message in Supabase
+      // Store user message in Supabase
       const { data, error } = await supabase
         .from('messages')
         .insert([
@@ -117,6 +116,21 @@ export function ChatInterface() {
       if (error) throw error;
 
       console.log("Message stored successfully:", data);
+      
+      // Call Edge Function to get AI response
+      const response = await fetch('https://xkcomymfasugmwrkrewa.functions.supabase.co/chat-assistant', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ message: content }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get AI response');
+      }
+
       toast({
         title: "Message Sent",
         description: "Message sent successfully.",
