@@ -33,8 +33,10 @@ export function ChatInterface() {
 
       if (data) {
         setMessages(data.map(msg => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp).toLocaleTimeString()
+          id: msg.id,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp).toLocaleTimeString(),
+          type: msg.type as "sent" | "received"
         })));
       }
     };
@@ -48,7 +50,9 @@ export function ChatInterface() {
 
     const setupSubscription = async () => {
       // Enable real-time for the messages table
-      await supabase.from('messages').update({ id: messages[0]?.id }).eq('id', messages[0]?.id || '');
+      if (messages[0]?.id) {
+        await supabase.from('messages').update({ id: messages[0].id }).eq('id', messages[0].id);
+      }
 
       channel = supabase
         .channel('schema-db-changes')
@@ -61,17 +65,22 @@ export function ChatInterface() {
           },
           (payload) => {
             console.log('Real-time update received:', payload);
-            const { new: newMessage } = payload;
-            if (newMessage) {
+            if (payload.new && 'id' in payload.new) {
+              const newMsg = payload.new as { id: string; content: string; timestamp: string; type: string };
+              
               setMessages(prev => {
                 // Check if message already exists
-                const exists = prev.some(msg => msg.id === newMessage.id);
+                const exists = prev.some(msg => msg.id === newMsg.id);
                 if (exists) return prev;
                 
-                return [...prev, {
-                  ...newMessage,
-                  timestamp: new Date(newMessage.timestamp).toLocaleTimeString()
-                }];
+                const formattedMessage: ChatMessage = {
+                  id: newMsg.id,
+                  content: newMsg.content,
+                  timestamp: new Date(newMsg.timestamp).toLocaleTimeString(),
+                  type: newMsg.type as "sent" | "received"
+                };
+                
+                return [...prev, formattedMessage];
               });
             }
           }
@@ -86,7 +95,7 @@ export function ChatInterface() {
         supabase.removeChannel(channel);
       }
     };
-  }, []);
+  }, [messages]);
 
   const handleSend = async (content: string) => {
     setIsLoading(true);
