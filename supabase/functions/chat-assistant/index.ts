@@ -23,22 +23,35 @@ serve(async (req) => {
 
   try {
     console.log('Starting chat-assistant function execution');
+    console.log('Request method:', req.method);
+    console.log('Request headers:', Object.fromEntries(req.headers.entries()));
     
     const { message } = await req.json();
     console.log('Received request body:', { message });
 
     if (!message) {
       console.error('No message provided in request');
-      return new Response(
-        JSON.stringify({ error: 'Message is required' }), 
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
+      throw new Error('Message is required');
     }
 
-    console.log('Calling OpenAI API with message:', message);
+    console.log('Calling OpenAI API...');
+    console.log('OpenAI Request payload:', {
+      model: 'gpt-3.5-turbo',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a helpful assistant. Format your responses clearly and professionally:
+          - Use proper spacing between sections
+          - Start each major section with a clear heading
+          - Use bullet points (•) for lists
+          - Keep paragraphs short and focused
+          - Add a brief introduction before diving into details
+          - Use clear language and avoid jargon
+          - Separate different topics with line breaks`
+        },
+        { role: 'user', content: message }
+      ]
+    });
     
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -67,7 +80,7 @@ serve(async (req) => {
       }),
     });
     
-    console.log('OpenAI API status:', openAIResponse.status);
+    console.log('OpenAI API response status:', openAIResponse.status);
     
     if (!openAIResponse.ok) {
       const errorText = await openAIResponse.text();
@@ -76,7 +89,7 @@ serve(async (req) => {
     }
 
     const data = await openAIResponse.json();
-    console.log('OpenAI API response:', data);
+    console.log('OpenAI API response data:', data);
 
     if (!data.choices?.[0]?.message?.content) {
       console.error('Invalid response structure from OpenAI:', data);
@@ -84,9 +97,9 @@ serve(async (req) => {
     }
 
     const aiResponse = data.choices[0].message.content;
-    console.log('AI response:', aiResponse);
+    console.log('AI response content:', aiResponse);
 
-    console.log('Storing response in Supabase');
+    console.log('Storing response in Supabase...');
     const { error: dbError } = await supabase
       .from('messages')
       .insert([
@@ -113,12 +126,21 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in chat-assistant function:', error);
     console.error('Error stack trace:', error.stack);
+    console.error('Error details:', {
+      name: error.name,
+      message: error.message,
+      cause: error.cause
+    });
     
     // Ensure we always return a proper response, even in error cases
     return new Response(
       JSON.stringify({ 
         error: error.message || 'An unexpected error occurred',
-        stack: error.stack 
+        stack: error.stack,
+        details: {
+          name: error.name,
+          cause: error.cause
+        }
       }), 
       { 
         status: 500,
