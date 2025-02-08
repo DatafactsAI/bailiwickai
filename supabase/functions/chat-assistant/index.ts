@@ -9,7 +9,11 @@ const openAIApiKey = Deno.env.get('OPENAI_API_KEY')!;
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
-console.log('Environment variables loaded');
+console.log('Environment variables loaded:', {
+  hasOpenAIKey: !!openAIApiKey,
+  hasSupabaseUrl: !!supabaseUrl,
+  hasSupabaseKey: !!supabaseServiceKey
+});
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 console.log('Supabase client initialized');
@@ -20,7 +24,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  console.log('==== New Request Received ====');
+  const requestId = crypto.randomUUID();
+  console.log(`==== New Request ${requestId} Received ====`);
   console.log('Request URL:', req.url);
   console.log('Request method:', req.method);
   
@@ -31,7 +36,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Starting chat-assistant function execution');
+    console.log(`Starting chat-assistant function execution for request ${requestId}`);
     console.log('Request headers:', Object.fromEntries(req.headers.entries()));
     
     const body = await req.json();
@@ -45,8 +50,8 @@ serve(async (req) => {
       throw new Error('Message is required');
     }
 
-    console.log('Calling OpenAI API...');
-    console.log('OpenAI Request payload:', {
+    console.log(`[${requestId}] Calling OpenAI API...`);
+    const openAIPayload = {
       model: 'gpt-3.5-turbo',
       messages: [
         {
@@ -61,8 +66,11 @@ serve(async (req) => {
           - Separate different topics with line breaks`
         },
         { role: 'user', content: message }
-      ]
-    });
+      ],
+      temperature: 0.7,
+      max_tokens: 500
+    };
+    console.log(`[${requestId}] OpenAI Request payload:`, openAIPayload);
     
     const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -70,47 +78,41 @@ serve(async (req) => {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a helpful assistant. Format your responses clearly and professionally:
-            - Use proper spacing between sections
-            - Start each major section with a clear heading
-            - Use bullet points (•) for lists
-            - Keep paragraphs short and focused
-            - Add a brief introduction before diving into details
-            - Use clear language and avoid jargon
-            - Separate different topics with line breaks`
-          },
-          { role: 'user', content: message }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      }),
+      body: JSON.stringify(openAIPayload),
     });
     
-    console.log('OpenAI API response status:', openAIResponse.status);
+    console.log(`[${requestId}] OpenAI API response status:`, openAIResponse.status);
     
     if (!openAIResponse.ok) {
       const errorText = await openAIResponse.text();
-      console.error('OpenAI API error response:', errorText);
-      throw new Error(`OpenAI API error: ${openAIResponse.status} ${errorText}`);
+      console.error(`[${requestId}] OpenAI API error response:`, errorText);
+      return new Response(
+        JSON.stringify({ error: `OpenAI API error: ${openAIResponse.status} ${errorText}` }),
+        { 
+          status: openAIResponse.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     const data = await openAIResponse.json();
-    console.log('OpenAI API response data:', data);
+    console.log(`[${requestId}] OpenAI API response data:`, data);
 
     if (!data.choices?.[0]?.message?.content) {
-      console.error('Invalid response structure from OpenAI:', data);
-      throw new Error('Invalid response from OpenAI');
+      console.error(`[${requestId}] Invalid response structure from OpenAI:`, data);
+      return new Response(
+        JSON.stringify({ error: 'Invalid response from OpenAI' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
     const aiResponse = data.choices[0].message.content;
-    console.log('AI response content:', aiResponse);
+    console.log(`[${requestId}] AI response content:`, aiResponse);
 
-    console.log('Storing response in Supabase...');
+    console.log(`[${requestId}] Storing response in Supabase...`);
     const { error: dbError } = await supabase
       .from('messages')
       .insert([
@@ -122,11 +124,17 @@ serve(async (req) => {
       ]);
 
     if (dbError) {
-      console.error('Supabase storage error:', dbError);
-      throw new Error('Failed to store response');
+      console.error(`[${requestId}] Supabase storage error:`, dbError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to store response' }),
+        { 
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
     }
 
-    console.log('Successfully stored response in Supabase');
+    console.log(`[${requestId}] Successfully stored response in Supabase`);
     return new Response(
       JSON.stringify({ success: true, response: aiResponse }), 
       { 
@@ -143,7 +151,6 @@ serve(async (req) => {
       cause: error.cause
     });
     
-    // Ensure we always return a proper response, even in error cases
     return new Response(
       JSON.stringify({ 
         error: error.message || 'An unexpected error occurred',
