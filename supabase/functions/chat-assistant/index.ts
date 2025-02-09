@@ -46,14 +46,31 @@ serve(async (req) => {
   }
 
   try {
+    // First verify that the assistant exists
+    console.log(`[${requestId}] Verifying assistant...`);
+    const assistantResponse = await fetch(`https://api.openai.com/v1/assistants/${assistantId}`, {
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'OpenAI-Beta': 'assistants=v2',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!assistantResponse.ok) {
+      const errorText = await assistantResponse.text();
+      console.error(`[${requestId}] Assistant verification failed:`, errorText);
+      throw new Error(`Assistant verification failed: ${errorText}`);
+    }
+
+    const assistant = await assistantResponse.json();
+    console.log(`[${requestId}] Assistant verified:`, assistant.id);
+
     const body = await req.json().catch(error => {
       console.error(`[${requestId}] Failed to parse request body:`, error);
       throw new Error('Invalid JSON in request body');
     });
     
-    console.log(`[${requestId}] Request body:`, body);
     const { message } = body;
-
     if (!message) {
       console.error(`[${requestId}] No message provided in request`);
       throw new Error('Message is required');
@@ -61,14 +78,15 @@ serve(async (req) => {
 
     console.log(`[${requestId}] Creating thread with OpenAI Assistant...`);
     
-    // Create a thread with assistants=v2 header
+    const headers = {
+      'Authorization': `Bearer ${openAIApiKey}`,
+      'OpenAI-Beta': 'assistants=v2',
+      'Content-Type': 'application/json'
+    };
+
     const threadResponse = await fetch('https://api.openai.com/v1/threads', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-        'OpenAI-Beta': 'assistants=v2'
-      },
+      headers,
       body: JSON.stringify({})
     });
 
@@ -81,14 +99,9 @@ serve(async (req) => {
     const thread = await threadResponse.json();
     console.log(`[${requestId}] Thread created:`, thread.id);
 
-    // Add message to thread with assistants=v2 header
     const messageResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-        'OpenAI-Beta': 'assistants=v2'
-      },
+      headers,
       body: JSON.stringify({
         role: 'user',
         content: message
@@ -103,14 +116,9 @@ serve(async (req) => {
 
     console.log(`[${requestId}] Message added to thread`);
 
-    // Run the assistant with assistants=v2 header
     const runResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-        'OpenAI-Beta': 'assistants=v2'
-      },
+      headers,
       body: JSON.stringify({
         assistant_id: assistantId
       })
@@ -125,19 +133,15 @@ serve(async (req) => {
     const run = await runResponse.json();
     console.log(`[${requestId}] Assistant run started:`, run.id);
 
-    // Poll for completion with assistants=v2 header
     let runStatus = run.status;
     let attempts = 0;
-    const maxAttempts = 30; // 30 seconds timeout
+    const maxAttempts = 60; // Increased timeout to 60 seconds
     
     while (runStatus !== 'completed' && runStatus !== 'failed' && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const statusResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
-        headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'OpenAI-Beta': 'assistants=v2'
-        }
+        headers,
       });
 
       if (!statusResponse.ok) {
@@ -157,12 +161,8 @@ serve(async (req) => {
       throw new Error(`Assistant run did not complete in time: ${runStatus}`);
     }
 
-    // Get messages with assistants=v2 header
     const messagesResponse = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages`, {
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'OpenAI-Beta': 'assistants=v2'
-      }
+      headers,
     });
 
     if (!messagesResponse.ok) {
@@ -181,7 +181,6 @@ serve(async (req) => {
     const aiResponse = assistantMessage.content[0].text.value;
     console.log(`[${requestId}] Assistant response:`, aiResponse);
 
-    // Store in Supabase with retry logic
     let retryCount = 0;
     const maxRetries = 3;
     
@@ -221,7 +220,6 @@ serve(async (req) => {
 
   } catch (error) {
     console.error(`[${requestId}] Error in chat-assistant function:`, error);
-    console.error(`[${requestId}] Error stack trace:`, error.stack);
     
     const endTime = performance.now();
     console.log(`[${requestId}] Request failed in ${endTime - startTime}ms`);
@@ -230,11 +228,7 @@ serve(async (req) => {
       JSON.stringify({ 
         error: error.message || 'An unexpected error occurred',
         requestId,
-        timestamp: new Date().toISOString(),
-        details: {
-          name: error.name,
-          cause: error.cause
-        }
+        timestamp: new Date().toISOString()
       }), 
       { 
         status: 500,
