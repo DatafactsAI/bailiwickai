@@ -1,3 +1,4 @@
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
@@ -5,7 +6,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
 console.log('Starting function initialization...');
 
 const openAIApiKey = Deno.env.get('Open_ai_key')!;
-const assistantId = 'YOUR_NEW_ASSISTANT_ID'; // Replace this with your new Assistant ID
+const assistantId = 'asst_jY5Xitw2hGUj6sOnPGjUEWUy';
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
