@@ -14,24 +14,22 @@ export function Message({ content, timestamp, type }: MessageProps) {
     const paragraphs = text.split(/\n\n+/);
     
     return paragraphs.map((paragraph, index) => {
-      // Check if the paragraph contains numbered points or bullet points
-      const hasPoints = /^\d+\.\s|\*\*[\w\s]+\*\*:/.test(paragraph);
+      // Check if the paragraph contains bullet points or numbered items
+      const hasPoints = /^\d+\.\s/.test(paragraph);
       
       if (hasPoints) {
-        // Split into individual points and format them
-        const points = paragraph.split(/(?=\d+\.|(?:\*\*[\w\s]+\*\*:))/);
+        // Split into individual points
+        const points = paragraph.split(/(?=\d+\.\s)/);
         return (
           <div key={index} className="mb-4">
             {points.map((point, pointIndex) => {
-              // Format the point title (bolded text)
-              const formattedPoint = point.replace(/\*\*(.*?)\*\*/, '<strong>$1</strong>');
+              // Replace the number with a bullet point
+              const formattedPoint = point.replace(/^\d+\.\s/, '• ');
               return (
-                <div key={pointIndex} className="mb-2">
-                  {/* Use dangerouslySetInnerHTML only for the bold formatting we control */}
-                  <div 
-                    dangerouslySetInnerHTML={{ __html: formattedPoint }}
-                    className="leading-relaxed"
-                  />
+                <div key={pointIndex} className="mb-2 pl-4">
+                  <div className="leading-relaxed">
+                    {formattedPoint}
+                  </div>
                 </div>
               );
             })}
