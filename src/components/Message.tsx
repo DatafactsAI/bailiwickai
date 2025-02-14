@@ -26,7 +26,7 @@ export function Message({ content, timestamp, type }: MessageProps) {
               // Format the point title (bolded text)
               const formattedPoint = point.replace(/\*\*(.*?)\*\*/, '<strong>$1</strong>');
               return (
-                <div key={pointIndex} className="mb-2 pl-4">
+                <div key={pointIndex} className="mb-2">
                   {/* Use dangerouslySetInnerHTML only for the bold formatting we control */}
                   <div 
                     dangerouslySetInnerHTML={{ __html: formattedPoint }}
