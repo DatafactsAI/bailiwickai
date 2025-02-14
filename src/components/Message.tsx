@@ -23,8 +23,10 @@ export function Message({ content, timestamp, type }: MessageProps) {
         return (
           <div key={index} className="mb-4">
             {points.map((point, pointIndex) => {
-              // Replace the number with a bullet point
-              const formattedPoint = point.replace(/^\d+\.\s/, '• ');
+              // Remove ** and replace the number with a bullet point
+              const formattedPoint = point
+                .replace(/^\d+\.\s/, '• ')
+                .replace(/\*\*/g, '');
               return (
                 <div key={pointIndex} className="mb-2 pl-4">
                   <div className="leading-relaxed">
