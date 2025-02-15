@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      clients_financial_data: {
+        Row: {
+          advisor_name: string
+          client1_dob: string
+          client1_gross_salary: number
+          client1_name: string
+          client1_super_balance: number
+          client2_dob: string | null
+          client2_gross_salary: number | null
+          client2_name: string | null
+          client2_super_balance: number | null
+          consultation_date: string
+          created_at: string | null
+          id: string
+        }
+        Insert: {
+          advisor_name: string
+          client1_dob: string
+          client1_gross_salary: number
+          client1_name: string
+          client1_super_balance: number
+          client2_dob?: string | null
+          client2_gross_salary?: number | null
+          client2_name?: string | null
+          client2_super_balance?: number | null
+          consultation_date: string
+          created_at?: string | null
+          id?: string
+        }
+        Update: {
+          advisor_name?: string
+          client1_dob?: string
+          client1_gross_salary?: number
+          client1_name?: string
+          client1_super_balance?: number
+          client2_dob?: string | null
+          client2_gross_salary?: number | null
+          client2_name?: string | null
+          client2_super_balance?: number | null
+          consultation_date?: string
+          created_at?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
