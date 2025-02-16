@@ -2,7 +2,14 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
-import { corsHeaders, enhanceMessageWithContext, verifyAssistant, createThread } from './utils.ts';
+import { 
+  corsHeaders, 
+  enhanceMessageWithContext, 
+  verifyAssistant, 
+  createThread,
+  updateClientData,
+  analyzeMessage
+} from './utils.ts';
 
 const openAIApiKey = Deno.env.get('Open_ai_key')!;
 const assistantId = 'asst_jY5Xitw2hGUj6sOnPGjUEWUy';
@@ -20,6 +27,55 @@ serve(async (req) => {
 
   try {
     const { message, clientData } = await req.json();
+    
+    // First, check if this is a data update request
+    if (clientData?.clientId) {
+      const analysis = analyzeMessage(message);
+      
+      if (analysis.action !== 'none' && analysis.targetValue !== null) {
+        const updates: Record<string, number> = {};
+        const clientPrefix = `client${analysis.clientNumber}_`;
+        
+        if (analysis.action === 'update_super') {
+          updates[`${clientPrefix}super_balance`] = analysis.targetValue;
+        } else if (analysis.action === 'update_salary') {
+          updates[`${clientPrefix}gross_salary`] = analysis.targetValue;
+        }
+        
+        if (Object.keys(updates).length > 0) {
+          try {
+            const updatedClient = await updateClientData(supabase, clientData.clientId, updates);
+            const successMessage = `I've updated the client's data. The new values are:\n${
+              Object.entries(updates).map(([key, value]) => 
+                `${key.replace(/_/g, ' ')}: $${value.toLocaleString()}`
+              ).join('\n')
+            }`;
+            
+            await supabase
+              .from('messages')
+              .insert([{
+                content: successMessage,
+                type: 'received',
+                timestamp: new Date().toISOString(),
+                metadata: {
+                  ...clientData,
+                  ...updates
+                }
+              }]);
+
+            return new Response(
+              JSON.stringify({ success: true, response: successMessage }), 
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          } catch (error) {
+            console.error(`[${requestId}] Update error:`, error);
+            throw new Error('Failed to update client data');
+          }
+        }
+      }
+    }
+
+    // If not a data update request or update not needed, proceed with normal chat
     const enhancedMessage = enhanceMessageWithContext(message, clientData);
 
     const headers = {
@@ -89,6 +145,7 @@ serve(async (req) => {
         content: aiResponse,
         type: 'received',
         timestamp: new Date().toISOString(),
+        metadata: clientData
       }]);
 
     return new Response(
