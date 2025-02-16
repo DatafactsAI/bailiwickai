@@ -1,16 +1,10 @@
-import { ChatInterface } from "@/components/ChatInterface";
 
-const Index = () => {
+import { ZapierWebhookForm } from "@/components/ZapierWebhookForm";
+
+export default function Index() {
   return (
-    <div className="flex flex-col h-screen bg-white">
-      <header className="bg-[#0284C7] text-white p-4">
-        <h1 className="text-xl font-bold text-left">Financial Planning Assistant</h1>
-      </header>
-      <main className="flex-1 p-4">
-        <ChatInterface />
-      </main>
+    <div className="container mx-auto px-4 py-8">
+      <ZapierWebhookForm />
     </div>
   );
-};
-
-export default Index;
+}
