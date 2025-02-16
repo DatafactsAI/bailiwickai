@@ -66,6 +66,7 @@ export async function updateClientData(supabase: any, clientId: string, updates:
   client2_gross_salary: number;
   client2_super_balance: number;
 }>) {
+  console.log('Updating client data:', { clientId, updates });
   const { data, error } = await supabase
     .from('clients_financial_data')
     .update(updates)
@@ -73,17 +74,28 @@ export async function updateClientData(supabase: any, clientId: string, updates:
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error updating client data:', error);
+    throw error;
+  }
+  console.log('Updated client data:', data);
   return data;
 }
 
 export function extractNumberFromText(text: string): number | null {
-  // Look for number patterns with or without commas and dollar signs
-  const matches = text.match(/\$?([\d,]+)/);
+  // First, remove all spaces and commas from the text to handle large numbers
+  const cleanText = text.replace(/[ ,]/g, '');
+  
+  // Look for any number pattern, with or without dollar sign
+  const matches = cleanText.match(/\$?(\d+)/);
+  
   if (matches) {
-    // Remove commas and convert to number
-    return Number(matches[1].replace(/,/g, ''));
+    const number = Number(matches[1]);
+    console.log('Extracted number:', { original: text, cleaned: cleanText, extracted: number });
+    return number;
   }
+  
+  console.log('No number found in text:', text);
   return null;
 }
 
@@ -114,7 +126,13 @@ export function analyzeMessage(message: string): {
   // Extract the numeric value
   const targetValue = extractNumberFromText(message);
   
-  console.log('Analyzed message:', { action, targetValue, clientNumber, message });
+  console.log('Analyzed message:', { 
+    action, 
+    targetValue, 
+    clientNumber, 
+    message,
+    lowercaseMessage 
+  });
 
   return {
     action,
