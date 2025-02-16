@@ -89,7 +89,13 @@ You can now ask questions about this client's financial situation.`;
             content: clientSummary,
             type: 'received',
             timestamp: new Date().toISOString(),
-            metadata: { clientId: client.id }
+            metadata: {
+              clientId: client.id,
+              client1_gross_salary: client.client1_gross_salary,
+              client1_super_balance: client.client1_super_balance,
+              client2_gross_salary: client.client2_gross_salary,
+              client2_super_balance: client.client2_super_balance
+            }
           }
         ]);
     }
