@@ -5,24 +5,26 @@ import { MessageInput } from "./MessageInput";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+interface ClientMetadata {
+  clientId?: string;
+  client1_gross_salary?: number;
+  client1_super_balance?: number;
+  client2_gross_salary?: number;
+  client2_super_balance?: number;
+}
+
 interface ChatMessage {
   id: string;
   content: string;
   timestamp: string;
   type: "sent" | "received";
-  metadata?: {
-    clientId?: string;
-    client1_gross_salary?: number;
-    client1_super_balance?: number;
-    client2_gross_salary?: number;
-    client2_super_balance?: number;
-  };
+  metadata?: ClientMetadata;
 }
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentClientData, setCurrentClientData] = useState<ChatMessage['metadata']>();
+  const [currentClientData, setCurrentClientData] = useState<ClientMetadata | undefined>();
   const { toast } = useToast();
 
   // Fetch existing messages on component mount
@@ -41,12 +43,12 @@ export function ChatInterface() {
 
       if (data) {
         console.log("Fetched messages:", data);
-        const formattedMessages = data.map(msg => ({
+        const formattedMessages: ChatMessage[] = data.map(msg => ({
           id: msg.id,
           content: msg.content,
           timestamp: new Date(msg.timestamp).toLocaleTimeString(),
           type: msg.type as "sent" | "received",
-          metadata: msg.metadata
+          metadata: msg.metadata as ClientMetadata
         }));
         setMessages(formattedMessages);
         
@@ -82,7 +84,7 @@ export function ChatInterface() {
             content: string; 
             timestamp: string; 
             type: string;
-            metadata: ChatMessage['metadata'];
+            metadata: ClientMetadata;
           };
           
           if (payload.eventType === 'INSERT') {
@@ -126,6 +128,7 @@ export function ChatInterface() {
 
   const handleSend = async (content: string) => {
     console.log("Starting handleSend with content:", content);
+    console.log("Current client data:", currentClientData);
     setIsLoading(true);
     const timestamp = new Date().toISOString();
     
