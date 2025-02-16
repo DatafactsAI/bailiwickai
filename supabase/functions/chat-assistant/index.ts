@@ -27,12 +27,16 @@ serve(async (req) => {
 
   try {
     const { message, clientData } = await req.json();
+    console.log(`[${requestId}] Processing request:`, { message, clientData });
     
     // First, check if this is a data update request
     if (clientData?.clientId) {
+      console.log(`[${requestId}] Client data present, analyzing message`);
       const analysis = analyzeMessage(message);
+      console.log(`[${requestId}] Message analysis result:`, analysis);
       
       if (analysis.action !== 'none' && analysis.targetValue !== null) {
+        console.log(`[${requestId}] Update action detected:`, { action: analysis.action, value: analysis.targetValue });
         const updates: Record<string, number> = {};
         const clientPrefix = `client${analysis.clientNumber}_`;
         
@@ -42,9 +46,14 @@ serve(async (req) => {
           updates[`${clientPrefix}gross_salary`] = analysis.targetValue;
         }
         
+        console.log(`[${requestId}] Prepared updates:`, updates);
+        
         if (Object.keys(updates).length > 0) {
           try {
+            console.log(`[${requestId}] Attempting to update client data`);
             const updatedClient = await updateClientData(supabase, clientData.clientId, updates);
+            console.log(`[${requestId}] Client data updated successfully:`, updatedClient);
+            
             const successMessage = `I've updated the client's data. The new values are:\n${
               Object.entries(updates).map(([key, value]) => 
                 `${key.replace(/_/g, ' ')}: $${value.toLocaleString()}`
@@ -63,19 +72,23 @@ serve(async (req) => {
                 }
               }]);
 
+            console.log(`[${requestId}] Success response prepared`);
             return new Response(
               JSON.stringify({ success: true, response: successMessage }), 
               { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             );
           } catch (error) {
             console.error(`[${requestId}] Update error:`, error);
-            throw new Error('Failed to update client data');
+            throw error;
           }
         }
+      } else {
+        console.log(`[${requestId}] No update action needed, proceeding with chat`);
       }
     }
 
     // If not a data update request or update not needed, proceed with normal chat
+    console.log(`[${requestId}] Processing as normal chat message`);
     const enhancedMessage = enhanceMessageWithContext(message, clientData);
 
     const headers = {
@@ -148,6 +161,7 @@ serve(async (req) => {
         metadata: clientData
       }]);
 
+    console.log(`[${requestId}] Chat response prepared`);
     return new Response(
       JSON.stringify({ success: true, response: aiResponse }), 
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
