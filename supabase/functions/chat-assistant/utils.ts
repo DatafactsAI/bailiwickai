@@ -83,15 +83,25 @@ export async function updateClientData(supabase: any, clientId: string, updates:
 }
 
 export function extractNumberFromText(text: string): number | null {
-  // First, remove all spaces and commas from the text to handle large numbers
-  const cleanText = text.replace(/[ ,]/g, '');
+  // First, remove spaces between numbers
+  let cleanText = text.replace(/(\d)\s+(?=\d)/g, '$1');
   
-  // Look for any number pattern, with or without dollar sign
-  const matches = cleanText.match(/\$?(\d+)/);
+  // Then look for the last number in the text (which is typically the target value)
+  // This regex looks for:
+  // - Optional dollar sign
+  // - Numbers that may contain commas
+  // - Handles both "1000" and "1,000" formats
+  const matches = cleanText.match(/\$?([\d,]+)(?!.*\d)/);
   
   if (matches) {
-    const number = Number(matches[1]);
-    console.log('Extracted number:', { original: text, cleaned: cleanText, extracted: number });
+    // Remove commas and convert to number
+    const number = Number(matches[1].replace(/,/g, ''));
+    console.log('Extracted number:', { 
+      original: text, 
+      cleaned: cleanText, 
+      match: matches[1],
+      extracted: number 
+    });
     return number;
   }
   
