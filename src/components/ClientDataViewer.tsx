@@ -61,11 +61,45 @@ export function ClientDataViewer() {
     }).format(amount);
   };
 
+  const handleClientSelect = async (clientId: string) => {
+    setSelectedClientId(clientId);
+    const client = clientsData?.find(c => c.id === clientId);
+    
+    if (client) {
+      const clientSummary = `Selected Client Information:
+      
+Client 1: ${client.client1_name}
+Date of Birth: ${new Date(client.client1_dob).toLocaleDateString()}
+Gross Salary: ${formatCurrency(client.client1_gross_salary)}
+Super Balance: ${formatCurrency(client.client1_super_balance)}
+${client.client2_name ? `\nClient 2: ${client.client2_name}
+Date of Birth: ${client.client2_dob ? new Date(client.client2_dob).toLocaleDateString() : 'N/A'}
+Gross Salary: ${client.client2_gross_salary ? formatCurrency(client.client2_gross_salary) : 'N/A'}
+Super Balance: ${client.client2_super_balance ? formatCurrency(client.client2_super_balance) : 'N/A'}` : ''}
+
+Consultation Date: ${new Date(client.consultation_date).toLocaleDateString()}
+Advisor: ${client.advisor_name}
+
+You can now ask questions about this client's financial situation.`;
+
+      await supabase
+        .from('messages')
+        .insert([
+          {
+            content: clientSummary,
+            type: 'received',
+            timestamp: new Date().toISOString(),
+            metadata: { clientId: client.id }
+          }
+        ]);
+    }
+  };
+
   if (!isOpen) {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-4 z-50 bg-blue-600 hover:bg-blue-700"
+        className="bg-blue-600 hover:bg-blue-700"
       >
         <FileText className="w-4 h-4 mr-2" />
         View Client Data
@@ -83,7 +117,7 @@ export function ClientDataViewer() {
       </div>
 
       <div className="mb-6">
-        <Select value={selectedClientId || ''} onValueChange={setSelectedClientId}>
+        <Select value={selectedClientId || ''} onValueChange={handleClientSelect}>
           <SelectTrigger>
             <SelectValue placeholder="Select a client to view" />
           </SelectTrigger>
