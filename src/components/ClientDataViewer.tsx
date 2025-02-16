@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   Table,
@@ -16,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { FileText } from "lucide-react";
 
@@ -37,6 +38,30 @@ type ClientData = {
 export function ClientDataViewer() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  // Set up real-time subscription to clients_financial_data
+  React.useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'clients_financial_data'
+        },
+        () => {
+          // Invalidate and refetch queries when data changes
+          queryClient.invalidateQueries({ queryKey: ['clients'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   const { data: clientsData, isLoading } = useQuery({
     queryKey: ['clients'],
@@ -107,6 +132,14 @@ You can now ask questions about this client's financial situation.`;
         <FileText className="w-4 h-4 mr-2" />
         View Client Data
       </Button>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <Card className="fixed top-4 right-4 w-[90vw] max-w-3xl p-6 z-50 bg-white shadow-lg">
+        <div>Loading...</div>
+      </Card>
     );
   }
 
