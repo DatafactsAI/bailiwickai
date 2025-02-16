@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Table,
@@ -84,20 +83,18 @@ You can now ask questions about this client's financial situation.`;
 
       await supabase
         .from('messages')
-        .insert([
-          {
-            content: clientSummary,
-            type: 'received',
-            timestamp: new Date().toISOString(),
-            metadata: {
-              clientId: client.id,
-              client1_gross_salary: client.client1_gross_salary,
-              client1_super_balance: client.client1_super_balance,
-              client2_gross_salary: client.client2_gross_salary,
-              client2_super_balance: client.client2_super_balance
-            }
+        .insert({
+          content: clientSummary,
+          type: 'received',
+          timestamp: new Date().toISOString(),
+          metadata: {
+            clientId: client.id,
+            client1_gross_salary: client.client1_gross_salary,
+            client1_super_balance: client.client1_super_balance,
+            client2_gross_salary: client.client2_gross_salary,
+            client2_super_balance: client.client2_super_balance
           }
-        ]);
+        });
     }
   };
 

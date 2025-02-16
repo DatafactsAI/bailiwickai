@@ -1,3 +1,4 @@
+
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -77,8 +78,10 @@ export async function updateClientData(supabase: any, clientId: string, updates:
 }
 
 export function extractNumberFromText(text: string): number | null {
+  // Look for number patterns with or without commas and dollar signs
   const matches = text.match(/\$?([\d,]+)/);
   if (matches) {
+    // Remove commas and convert to number
     return Number(matches[1].replace(/,/g, ''));
   }
   return null;
@@ -94,21 +97,28 @@ export function analyzeMessage(message: string): {
   let action: 'update_super' | 'update_salary' | 'none' = 'none';
   let clientNumber: 1 | 2 | null = null;
   
+  // Check for keywords indicating what to update
   if (lowercaseMessage.includes('super') || lowercaseMessage.includes('superannuation')) {
     action = 'update_super';
   } else if (lowercaseMessage.includes('salary') || lowercaseMessage.includes('income')) {
     action = 'update_salary';
   }
 
+  // Determine which client to update
   if (lowercaseMessage.includes('client 2')) {
     clientNumber = 2;
-  } else {
+  } else if (lowercaseMessage.includes('client 1') || true) {
     clientNumber = 1; // Default to client 1 if not specified
   }
 
+  // Extract the numeric value
+  const targetValue = extractNumberFromText(message);
+  
+  console.log('Analyzed message:', { action, targetValue, clientNumber, message });
+
   return {
     action,
-    targetValue: extractNumberFromText(message),
+    targetValue,
     clientNumber
   };
 }

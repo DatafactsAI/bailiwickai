@@ -4,9 +4,17 @@ import { ClientMetadata } from "@/types/chat";
 
 export async function storeMessage(content: string, type: 'sent' | 'received', metadata?: ClientMetadata) {
   const timestamp = new Date().toISOString();
+  // Convert ClientMetadata to a plain object to satisfy Json type
+  const metadataObject = metadata ? { ...metadata } : undefined;
+  
   return await supabase
     .from('messages')
-    .insert([{ content, type, timestamp, metadata }])
+    .insert({
+      content,
+      type,
+      timestamp,
+      metadata: metadataObject
+    })
     .select()
     .single();
 }
