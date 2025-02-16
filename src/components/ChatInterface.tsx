@@ -10,11 +10,19 @@ interface ChatMessage {
   content: string;
   timestamp: string;
   type: "sent" | "received";
+  metadata?: {
+    clientId?: string;
+    client1_gross_salary?: number;
+    client1_super_balance?: number;
+    client2_gross_salary?: number;
+    client2_super_balance?: number;
+  };
 }
 
 export function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentClientData, setCurrentClientData] = useState<ChatMessage['metadata']>();
   const { toast } = useToast();
 
   // Fetch existing messages on component mount
@@ -33,12 +41,22 @@ export function ChatInterface() {
 
       if (data) {
         console.log("Fetched messages:", data);
-        setMessages(data.map(msg => ({
+        const formattedMessages = data.map(msg => ({
           id: msg.id,
           content: msg.content,
           timestamp: new Date(msg.timestamp).toLocaleTimeString(),
-          type: msg.type as "sent" | "received"
-        })));
+          type: msg.type as "sent" | "received",
+          metadata: msg.metadata
+        }));
+        setMessages(formattedMessages);
+        
+        // Set current client data from the most recent message that has client data
+        const lastMessageWithClientData = [...formattedMessages]
+          .reverse()
+          .find(msg => msg.metadata?.clientId);
+        if (lastMessageWithClientData?.metadata) {
+          setCurrentClientData(lastMessageWithClientData.metadata);
+        }
       }
     };
 
@@ -59,7 +77,13 @@ export function ChatInterface() {
         },
         (payload) => {
           console.log('Real-time update received:', payload);
-          const newMsg = payload.new as { id: string; content: string; timestamp: string; type: string };
+          const newMsg = payload.new as { 
+            id: string; 
+            content: string; 
+            timestamp: string; 
+            type: string;
+            metadata: ChatMessage['metadata'];
+          };
           
           if (payload.eventType === 'INSERT') {
             console.log('Processing new message:', newMsg);
@@ -75,8 +99,14 @@ export function ChatInterface() {
                 id: newMsg.id,
                 content: newMsg.content,
                 timestamp: new Date(newMsg.timestamp).toLocaleTimeString(),
-                type: newMsg.type as "sent" | "received"
+                type: newMsg.type as "sent" | "received",
+                metadata: newMsg.metadata
               };
+              
+              // Update current client data if this message contains client information
+              if (newMsg.metadata?.clientId) {
+                setCurrentClientData(newMsg.metadata);
+              }
               
               console.log('Adding new message to state:', formattedMessage);
               return [...prev, formattedMessage];
@@ -101,14 +131,15 @@ export function ChatInterface() {
     
     try {
       console.log("Storing user message in Supabase...");
-      // Store user message in Supabase
+      // Store user message in Supabase with current client context
       const { data: messageData, error: messageError } = await supabase
         .from('messages')
         .insert([
           {
             content,
             type: 'sent',
-            timestamp
+            timestamp,
+            metadata: currentClientData
           }
         ])
         .select()
@@ -124,7 +155,10 @@ export function ChatInterface() {
       console.log("Calling chat-assistant edge function...");
       // Call Edge Function to get AI response
       const functionResponse = await supabase.functions.invoke('chat-assistant', {
-        body: { message: content }
+        body: { 
+          message: content,
+          clientData: currentClientData
+        }
       }).catch(error => {
         console.error("Error invoking function:", error);
         throw error;

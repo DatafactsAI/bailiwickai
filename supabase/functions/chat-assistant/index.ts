@@ -46,6 +46,16 @@ serve(async (req) => {
   }
 
   try {
+    const { message, clientData } = await req.json();
+    console.log(`[${requestId}] Received client data:`, clientData);
+
+    let enhancedMessage = message;
+    if (clientData?.client1_gross_salary !== undefined && clientData?.client1_super_balance !== undefined) {
+      enhancedMessage = `Context: Client 1 has a gross salary of $${clientData.client1_gross_salary} and a super balance of $${clientData.client1_super_balance}. 
+      
+Question: ${message}`;
+    }
+
     // First verify that the assistant exists
     console.log(`[${requestId}] Verifying assistant...`);
     const assistantResponse = await fetch(`https://api.openai.com/v1/assistants/${assistantId}`, {
@@ -65,19 +75,6 @@ serve(async (req) => {
     const assistant = await assistantResponse.json();
     console.log(`[${requestId}] Assistant verified:`, assistant.id);
 
-    const body = await req.json().catch(error => {
-      console.error(`[${requestId}] Failed to parse request body:`, error);
-      throw new Error('Invalid JSON in request body');
-    });
-    
-    const { message } = body;
-    if (!message) {
-      console.error(`[${requestId}] No message provided in request`);
-      throw new Error('Message is required');
-    }
-
-    console.log(`[${requestId}] Creating thread with OpenAI Assistant...`);
-    
     const headers = {
       'Authorization': `Bearer ${openAIApiKey}`,
       'OpenAI-Beta': 'assistants=v2',
@@ -104,7 +101,7 @@ serve(async (req) => {
       headers,
       body: JSON.stringify({
         role: 'user',
-        content: message
+        content: enhancedMessage
       })
     });
 
