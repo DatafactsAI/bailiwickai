@@ -87,5 +87,9 @@ export function useMessages() {
     };
   }, []);
 
-  return { messages, currentClientData };
+  const clearMessages = () => {
+    setMessages([]);
+  };
+
+  return { messages, currentClientData, clearMessages };
 }

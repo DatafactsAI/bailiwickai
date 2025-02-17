@@ -5,10 +5,12 @@ import { MessageInput } from "./MessageInput";
 import { useToast } from "@/hooks/use-toast";
 import { useMessages } from "@/hooks/useMessages";
 import { storeMessage, invokeChatAssistant } from "@/utils/supabaseUtils";
+import { Button } from "./ui/button";
+import { Trash2 } from "lucide-react";
 
 export function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
-  const { messages, currentClientData } = useMessages();
+  const { messages, currentClientData, clearMessages } = useMessages();
   const { toast } = useToast();
 
   const handleSend = async (content: string) => {
@@ -47,8 +49,27 @@ export function ChatInterface() {
     }
   };
 
+  const handleClearChat = () => {
+    clearMessages();
+    toast({
+      title: "Chat Cleared",
+      description: "All messages have been cleared from the UI.",
+    });
+  };
+
   return (
     <div className="flex flex-col h-full bg-white">
+      <div className="flex justify-end p-2 border-b">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleClearChat}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Clear Chat
+        </Button>
+      </div>
       <MessageList messages={messages} />
       <MessageInput onSend={handleSend} isLoading={isLoading} />
     </div>
