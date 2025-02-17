@@ -1,4 +1,3 @@
-
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -119,27 +118,35 @@ export function analyzeMessage(message: string): {
   let action: 'update_super' | 'update_salary' | 'none' = 'none';
   let clientNumber: 1 | 2 | null = null;
   
-  // Check for keywords indicating what to update
-  if (lowercaseMessage.includes('super') || lowercaseMessage.includes('superannuation')) {
-    action = 'update_super';
-  } else if (lowercaseMessage.includes('salary') || lowercaseMessage.includes('income')) {
-    action = 'update_salary';
+  // Only look for update actions if the message explicitly mentions updating or changing values
+  const isUpdateRequest = lowercaseMessage.includes('update') || 
+                         lowercaseMessage.includes('change') || 
+                         lowercaseMessage.includes('set') || 
+                         lowercaseMessage.includes('modify');
+
+  if (isUpdateRequest) {
+    if (lowercaseMessage.includes('super') || lowercaseMessage.includes('superannuation')) {
+      action = 'update_super';
+    } else if (lowercaseMessage.includes('salary') || lowercaseMessage.includes('income')) {
+      action = 'update_salary';
+    }
   }
 
   // Determine which client to update
   if (lowercaseMessage.includes('client 2')) {
     clientNumber = 2;
-  } else if (lowercaseMessage.includes('client 1') || true) {
-    clientNumber = 1; // Default to client 1 if not specified
+  } else if (lowercaseMessage.includes('client 1')) {
+    clientNumber = 1;
   }
 
-  // Extract the numeric value
-  const targetValue = extractNumberFromText(message);
+  // Extract the numeric value only if this is an update request
+  const targetValue = isUpdateRequest ? extractNumberFromText(message) : null;
   
   console.log('Analyzed message:', { 
     action, 
     targetValue, 
-    clientNumber, 
+    clientNumber,
+    isUpdateRequest,
     message,
     lowercaseMessage 
   });
