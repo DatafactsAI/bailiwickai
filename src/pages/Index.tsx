@@ -1,8 +1,7 @@
 
 import { ChatInterface } from "@/components/ChatInterface";
 import { ClientDataViewer } from "@/components/ClientDataViewer";
-import { Button } from "@/components/ui/button";
-import { FileText, PenLine } from "lucide-react";
+import { FinancialPlanWriter } from "@/components/FinancialPlanWriter";
 
 export default function Index() {
   return (
@@ -11,18 +10,8 @@ export default function Index() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-[#0284C7]">Bailiwick AI</h1>
           <div className="flex gap-3">
-            <Button
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              View Client Data
-            </Button>
-            <Button
-              className="bg-[#9b87f5] hover:bg-[#8B5CF6]"
-            >
-              <PenLine className="w-4 h-4 mr-2" />
-              Write Financial Plan
-            </Button>
+            <ClientDataViewer />
+            <FinancialPlanWriter />
           </div>
         </div>
       </header>
