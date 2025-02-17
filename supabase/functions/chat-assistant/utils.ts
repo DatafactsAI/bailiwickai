@@ -1,3 +1,4 @@
+
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -14,12 +15,23 @@ interface ClientData {
 export function enhanceMessageWithContext(message: string, clientData?: ClientData): string {
   if (clientData?.clientId) {
     let context = `Context: You are a financial assistant. `;
+    
+    // Add Client 1's information
     if (clientData.client1_gross_salary !== undefined) {
-      context += `Client 1 has a gross salary of $${clientData.client1_gross_salary}. `;
+      context += `Client 1's gross salary is $${clientData.client1_gross_salary}. `;
     }
     if (clientData.client1_super_balance !== undefined) {
       context += `Client 1's super balance is $${clientData.client1_super_balance}. `;
     }
+    
+    // Add Client 2's information
+    if (clientData.client2_gross_salary !== undefined) {
+      context += `Client 2's gross salary is $${clientData.client2_gross_salary}. `;
+    }
+    if (clientData.client2_super_balance !== undefined) {
+      context += `Client 2's super balance is $${clientData.client2_super_balance}. `;
+    }
+    
     context += `\n\nYou can update client data when asked. For example, if someone asks to "change super balance to $100,000", you should update the database.\n\n`;
     context += `Question: ${message}`;
     return context;
