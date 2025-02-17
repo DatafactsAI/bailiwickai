@@ -29,7 +29,7 @@ serve(async (req) => {
     const { message, clientData } = await req.json();
     console.log(`[${requestId}] Processing request:`, { message, clientData });
     
-    // First, check if this is a data update request
+    // First, check if this is a data update request when client data is present
     if (clientData?.clientId) {
       console.log(`[${requestId}] Client data present, analyzing message`);
       const analysis = analyzeMessage(message);
@@ -82,14 +82,14 @@ serve(async (req) => {
             throw error;
           }
         }
-      } else {
-        console.log(`[${requestId}] No update action needed, proceeding with chat`);
       }
     }
 
-    // If not a data update request or update not needed, proceed with normal chat
-    console.log(`[${requestId}] Processing as normal chat message`);
-    const enhancedMessage = enhanceMessageWithContext(message, clientData);
+    // Process message with appropriate context
+    console.log(`[${requestId}] Processing chat message`);
+    const enhancedMessage = clientData?.clientId 
+      ? enhanceMessageWithContext(message, clientData)
+      : message;
 
     const headers = {
       'Authorization': `Bearer ${openAIApiKey}`,
@@ -158,7 +158,7 @@ serve(async (req) => {
         content: aiResponse,
         type: 'received',
         timestamp: new Date().toISOString(),
-        metadata: clientData
+        metadata: clientData || {}
       }]);
 
     console.log(`[${requestId}] Chat response prepared`);

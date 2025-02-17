@@ -1,4 +1,3 @@
-
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -14,7 +13,7 @@ interface ClientData {
 
 export function enhanceMessageWithContext(message: string, clientData?: ClientData): string {
   if (clientData?.clientId) {
-    let context = `Context: You are a financial assistant. `;
+    let context = `Context: You are a financial advisor assistant. `;
     
     // Add Client 1's information
     if (clientData.client1_gross_salary !== undefined) {
@@ -36,7 +35,7 @@ export function enhanceMessageWithContext(message: string, clientData?: ClientDa
     context += `Question: ${message}`;
     return context;
   }
-  return message;
+  return `You are a knowledgeable financial advisor assistant. Please provide helpful advice based on this question: ${message}`;
 }
 
 export async function verifyAssistant(apiKey: string, assistantId: string) {
