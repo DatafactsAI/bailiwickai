@@ -1,4 +1,7 @@
 
+import { ChatInterface } from "@/components/ChatInterface";
+import { ClientDataViewer } from "@/components/ClientDataViewer";
+
 export default function Index() {
   return (
     <div className="flex flex-col h-screen bg-white">
