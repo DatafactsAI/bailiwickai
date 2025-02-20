@@ -9,7 +9,11 @@ import { ClientTable } from './client-data/ClientTable';
 import { ClientSelector } from './client-data/ClientSelector';
 import { ClientData } from './client-data/types';
 
-export function ClientDataViewer() {
+interface ClientDataViewerProps {
+  onClientSelect: (clientId: string | null) => void;
+}
+
+export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -54,6 +58,7 @@ export function ClientDataViewer() {
 
   const handleClientSelect = async (clientId: string) => {
     setSelectedClientId(clientId);
+    onClientSelect(clientId);
     const client = clientsData?.find(c => c.id === clientId);
     
     if (client) {
@@ -114,7 +119,11 @@ You can now ask questions about this client's financial situation.`;
     <Card className="fixed top-4 right-4 w-[90vw] max-w-3xl p-6 z-50 bg-white shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Client Financial Data</h2>
-        <Button variant="outline" onClick={() => setIsOpen(false)}>
+        <Button variant="outline" onClick={() => {
+          setIsOpen(false);
+          setSelectedClientId(null);
+          onClientSelect(null);
+        }}>
           Close
         </Button>
       </div>

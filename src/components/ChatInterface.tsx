@@ -8,7 +8,11 @@ import { storeMessage, invokeChatAssistant } from "@/utils/supabaseUtils";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
 
-export function ChatInterface() {
+interface ChatInterfaceProps {
+  onSendMessage?: (message: string) => void;
+}
+
+export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { messages, currentClientData, clearMessages } = useMessages();
   const { toast } = useToast();
@@ -31,6 +35,11 @@ export function ChatInterface() {
 
       if (!functionResponse.data?.response) {
         throw new Error("Invalid response from AI");
+      }
+
+      // Call the onSendMessage prop if it exists
+      if (onSendMessage) {
+        onSendMessage(content);
       }
 
       toast({
