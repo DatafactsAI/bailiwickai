@@ -2,7 +2,6 @@
 import { ChatInterface } from "@/components/ChatInterface";
 import { ClientDataViewer } from "@/components/ClientDataViewer";
 import { FinancialPlanWriter } from "@/components/FinancialPlanWriter";
-import { AdvisorAdviceButton } from "@/components/AdvisorAdviceButton";
 import { useState } from "react";
 
 export default function Index() {
@@ -15,13 +14,6 @@ export default function Index() {
           <h1 className="text-2xl font-bold text-[#0284C7]">Bailiwick AI</h1>
           <div className="flex gap-3">
             <ClientDataViewer onClientSelect={setSelectedClientId} />
-            <AdvisorAdviceButton 
-              selectedClientId={selectedClientId}
-              onAdviceAdded={() => {
-                // Refresh client data
-                window.location.reload();
-              }}
-            />
             <FinancialPlanWriter />
           </div>
         </div>
@@ -39,4 +31,3 @@ export default function Index() {
     </div>
   );
 }
-

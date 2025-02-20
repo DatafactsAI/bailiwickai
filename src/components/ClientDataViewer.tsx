@@ -8,6 +8,7 @@ import { FileText } from "lucide-react";
 import { ClientTable } from './client-data/ClientTable';
 import { ClientSelector } from './client-data/ClientSelector';
 import { ClientData } from './client-data/types';
+import { AdvisorAdviceButton } from './AdvisorAdviceButton';
 
 interface ClientDataViewerProps {
   onClientSelect: (clientId: string | null) => void;
@@ -119,13 +120,23 @@ You can now ask questions about this client's financial situation.`;
     <Card className="fixed top-4 right-4 w-[90vw] max-w-3xl p-6 z-50 bg-white shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Client Financial Data</h2>
-        <Button variant="outline" onClick={() => {
-          setIsOpen(false);
-          setSelectedClientId(null);
-          onClientSelect(null);
-        }}>
-          Close
-        </Button>
+        <div className="flex gap-2">
+          {selectedClientId && (
+            <AdvisorAdviceButton
+              selectedClientId={selectedClientId}
+              onAdviceAdded={() => {
+                queryClient.invalidateQueries({ queryKey: ['clients'] });
+              }}
+            />
+          )}
+          <Button variant="outline" onClick={() => {
+            setIsOpen(false);
+            setSelectedClientId(null);
+            onClientSelect(null);
+          }}>
+            Close
+          </Button>
+        </div>
       </div>
 
       {clientsData && (
