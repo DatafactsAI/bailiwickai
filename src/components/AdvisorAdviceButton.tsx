@@ -3,8 +3,16 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ClientData } from './client-data/types';
 import { Loader2, MessageSquarePlus } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 interface AdvisorAdviceButtonProps {
   selectedClientId: string | null;
@@ -15,13 +23,23 @@ interface AdvisorAdviceButtonProps {
 export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded, webhookUrl }: AdvisorAdviceButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [advice, setAdvice] = useState('');
   const { toast } = useToast();
 
-  const handleAddAdvice = async (message: string) => {
+  const handleAddAdvice = async () => {
     if (!selectedClientId) {
       toast({
         title: "Error",
         description: "Please select a client first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!advice.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter some advice",
         variant: "destructive",
       });
       return;
@@ -32,7 +50,7 @@ export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded, webhookUr
       // Update advice in Supabase
       const { data: updatedClient, error: updateError } = await supabase
         .from('clients_financial_data')
-        .update({ advisor_advice: message })
+        .update({ advisor_advice: advice })
         .eq('id', selectedClientId)
         .select('*')
         .single();
@@ -72,6 +90,7 @@ export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded, webhookUr
 
       onAdviceAdded();
       setIsOpen(false);
+      setAdvice('');
     } catch (error) {
       console.error("Error saving advice:", error);
       toast({
@@ -85,28 +104,57 @@ export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded, webhookUr
   };
 
   return (
-    <Button
-      onClick={() => {
-        if (!selectedClientId) {
-          toast({
-            title: "Error",
-            description: "Please select a client first",
-            variant: "destructive",
-          });
-          return;
-        }
-        setIsOpen(true);
-      }}
-      className="bg-[#9b87f5] hover:bg-[#8B5CF6]"
-      disabled={isLoading}
-    >
-      {isLoading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <MessageSquarePlus className="h-4 w-4 mr-2" />
-      )}
-      Add Advisor Advice
-    </Button>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button
+          onClick={(e) => {
+            if (!selectedClientId) {
+              e.preventDefault();
+              toast({
+                title: "Error",
+                description: "Please select a client first",
+                variant: "destructive",
+              });
+              return;
+            }
+          }}
+          className="bg-[#9b87f5] hover:bg-[#8B5CF6]"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MessageSquarePlus className="h-4 w-4 mr-2" />
+          )}
+          Add Advisor Advice
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add Advisor Advice</DialogTitle>
+          <DialogDescription>
+            Enter your advice for the selected client below.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <Textarea
+            placeholder="Enter your advice here..."
+            value={advice}
+            onChange={(e) => setAdvice(e.target.value)}
+            className="min-h-[200px]"
+          />
+          <Button
+            onClick={handleAddAdvice}
+            disabled={isLoading}
+            className="w-full"
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : null}
+            Save Advice
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
-
