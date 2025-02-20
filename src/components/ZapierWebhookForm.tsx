@@ -1,14 +1,18 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
-export function ZapierWebhookForm() {
-  const [webhookUrl, setWebhookUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+interface ZapierWebhookFormProps {
+  webhookUrl: string;
+  onWebhookUrlChange: (url: string) => void;
+}
+
+export function ZapierWebhookForm({ webhookUrl, onWebhookUrlChange }: ZapierWebhookFormProps) {
+  const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
 
   const handleTestWebhook = async (e: React.FormEvent) => {
@@ -60,8 +64,8 @@ export function ZapierWebhookForm() {
   };
 
   return (
-    <Card className="p-6 max-w-2xl mx-auto my-8">
-      <h2 className="text-2xl font-bold mb-4">Zapier Webhook Configuration</h2>
+    <Card className="p-6">
+      <h2 className="text-lg font-semibold mb-4">Zapier Integration</h2>
       <form onSubmit={handleTestWebhook} className="space-y-4">
         <div>
           <label htmlFor="webhook-url" className="block text-sm font-medium mb-2">
@@ -71,7 +75,7 @@ export function ZapierWebhookForm() {
             id="webhook-url"
             type="url"
             value={webhookUrl}
-            onChange={(e) => setWebhookUrl(e.target.value)}
+            onChange={(e) => onWebhookUrlChange(e.target.value)}
             placeholder="Enter your Zapier webhook URL"
             className="w-full"
           />
@@ -88,15 +92,7 @@ export function ZapierWebhookForm() {
         </Button>
       </form>
       <div className="mt-4 text-sm text-gray-600">
-        <p>To set up your Zapier webhook:</p>
-        <ol className="list-decimal ml-4 mt-2 space-y-2">
-          <li>Create a new Zap in Zapier</li>
-          <li>Choose "Webhook" as your trigger</li>
-          <li>Select "Catch Hook" as the webhook type</li>
-          <li>Copy the webhook URL provided by Zapier</li>
-          <li>Paste it above and click "Test Webhook"</li>
-          <li>Check your Zap to confirm the test data was received</li>
-        </ol>
+        <p>This webhook will receive client advice data when you add new advice.</p>
       </div>
     </Card>
   );
