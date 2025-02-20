@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +8,7 @@ import { ClientTable } from './client-data/ClientTable';
 import { ClientSelector } from './client-data/ClientSelector';
 import { ClientData } from './client-data/types';
 import { AdvisorAdviceButton } from './AdvisorAdviceButton';
+import { ZapierWebhookForm } from './ZapierWebhookForm';
 
 interface ClientDataViewerProps {
   onClientSelect: (clientId: string | null) => void;
@@ -17,6 +17,7 @@ interface ClientDataViewerProps {
 export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [webhookUrl, setWebhookUrl] = useState<string>('');
   const queryClient = useQueryClient();
 
   // Set up real-time subscription to clients_financial_data
@@ -60,40 +61,6 @@ export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
   const handleClientSelect = async (clientId: string) => {
     setSelectedClientId(clientId);
     onClientSelect(clientId);
-    const client = clientsData?.find(c => c.id === clientId);
-    
-    if (client) {
-      const clientSummary = `Selected Client Information:
-      
-Client 1: ${client.client1_name}
-Date of Birth: ${new Date(client.client1_dob).toLocaleDateString()}
-Gross Salary: ${client.client1_gross_salary}
-Super Balance: ${client.client1_super_balance}
-${client.client2_name ? `\nClient 2: ${client.client2_name}
-Date of Birth: ${client.client2_dob ? new Date(client.client2_dob).toLocaleDateString() : 'N/A'}
-Gross Salary: ${client.client2_gross_salary || 'N/A'}
-Super Balance: ${client.client2_super_balance || 'N/A'}` : ''}
-
-Consultation Date: ${new Date(client.consultation_date).toLocaleDateString()}
-Advisor: ${client.advisor_name}
-
-You can now ask questions about this client's financial situation.`;
-
-      await supabase
-        .from('messages')
-        .insert({
-          content: clientSummary,
-          type: 'received',
-          timestamp: new Date().toISOString(),
-          metadata: {
-            clientId: client.id,
-            client1_gross_salary: client.client1_gross_salary,
-            client1_super_balance: client.client1_super_balance,
-            client2_gross_salary: client.client2_gross_salary,
-            client2_super_balance: client.client2_super_balance
-          }
-        });
-    }
   };
 
   if (!isOpen) {
@@ -118,36 +85,44 @@ You can now ask questions about this client's financial situation.`;
 
   return (
     <Card className="fixed top-4 right-4 w-[90vw] max-w-3xl p-6 z-50 bg-white shadow-lg">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Client Financial Data</h2>
-        <div className="flex gap-2">
-          {selectedClientId && (
-            <AdvisorAdviceButton
-              selectedClientId={selectedClientId}
-              onAdviceAdded={() => {
-                queryClient.invalidateQueries({ queryKey: ['clients'] });
-              }}
-            />
-          )}
-          <Button variant="outline" onClick={() => {
-            setIsOpen(false);
-            setSelectedClientId(null);
-            onClientSelect(null);
-          }}>
-            Close
-          </Button>
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Client Financial Data</h2>
+          <div className="flex gap-2">
+            {selectedClientId && (
+              <AdvisorAdviceButton
+                selectedClientId={selectedClientId}
+                onAdviceAdded={() => {
+                  queryClient.invalidateQueries({ queryKey: ['clients'] });
+                }}
+                webhookUrl={webhookUrl}
+              />
+            )}
+            <Button variant="outline" onClick={() => {
+              setIsOpen(false);
+              setSelectedClientId(null);
+              onClientSelect(null);
+            }}>
+              Close
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {clientsData && (
-        <ClientSelector
-          clients={clientsData}
-          selectedClientId={selectedClientId}
-          onClientSelect={handleClientSelect}
+        <ZapierWebhookForm
+          webhookUrl={webhookUrl}
+          onWebhookUrlChange={setWebhookUrl}
         />
-      )}
 
-      {selectedClient && <ClientTable client={selectedClient} />}
+        {clientsData && (
+          <ClientSelector
+            clients={clientsData}
+            selectedClientId={selectedClientId}
+            onClientSelect={handleClientSelect}
+          />
+        )}
+
+        {selectedClient && <ClientTable client={selectedClient} />}
+      </div>
     </Card>
   );
 }
