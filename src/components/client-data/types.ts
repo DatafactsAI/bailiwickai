@@ -22,4 +22,6 @@ export type ClientData = {
   total_lifestyle_assets: number;
   total_living_expenses: number;
   total_investment_assets: number;
+  advisor_advice?: string;
 };
+

@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       clients_financial_data: {
         Row: {
+          advisor_advice: string | null
           advisor_name: string
           client1_centrelink_received: number | null
           client1_dob: string
@@ -36,6 +37,7 @@ export type Database = {
           total_living_expenses: number | null
         }
         Insert: {
+          advisor_advice?: string | null
           advisor_name: string
           client1_centrelink_received?: number | null
           client1_dob: string
@@ -61,6 +63,7 @@ export type Database = {
           total_living_expenses?: number | null
         }
         Update: {
+          advisor_advice?: string | null
           advisor_name?: string
           client1_centrelink_received?: number | null
           client1_dob?: string

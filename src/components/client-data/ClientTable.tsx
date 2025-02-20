@@ -128,8 +128,17 @@ export function ClientTable({ client }: ClientTableProps) {
               {client.advisor_name}
             </TableCell>
           </TableRow>
+          {client.advisor_advice && (
+            <TableRow>
+              <TableCell className="font-medium">Advisor Advice</TableCell>
+              <TableCell colSpan={client.client2_name ? 2 : 1}>
+                {client.advisor_advice}
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </div>
   );
 }
+
