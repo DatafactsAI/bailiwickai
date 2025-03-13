@@ -24,14 +24,33 @@ export function ClientTable({ client, onPlaceInChat }: ClientTableProps) {
   const { toast } = useToast();
 
   const handlePlaceInChat = async () => {
-    // Create a formatted string with client details
-    const clientSummary = `Client Financial Summary for ${client.client1_name}:
+    // Create a comprehensive formatted string with all client details
+    const clientDetails = `Client Financial Summary for ${client.client1_name}:
+- Date of Birth: ${new Date(client.client1_dob).toLocaleDateString()}
 - Gross Salary: ${formatCurrency(client.client1_gross_salary)}
 - Super Balance: ${formatCurrency(client.client1_super_balance)}
 - Health Status: ${client.client1_health || 'Not specified'}
 - Work Status: ${client.client1_work_status || 'Not specified'}
-- Total Lifestyle Assets: ${formatCurrency(client.total_lifestyle_assets)}
-- Total Investment Assets: ${formatCurrency(client.total_investment_assets)}`;
+- Income Tax: ${formatCurrency(client.client1_income_tax || 0)}
+- Centrelink Received: ${formatCurrency(client.client1_centrelink_received || 0)}
+${client.client2_name ? `\nClient 2 (${client.client2_name}) Information:
+- Date of Birth: ${client.client2_dob ? new Date(client.client2_dob).toLocaleDateString() : 'Not specified'}
+- Gross Salary: ${client.client2_gross_salary ? formatCurrency(client.client2_gross_salary) : 'Not specified'}
+- Super Balance: ${client.client2_super_balance ? formatCurrency(client.client2_super_balance) : 'Not specified'}
+- Health Status: ${client.client2_health || 'Not specified'}
+- Work Status: ${client.client2_work_status || 'Not specified'}
+- Income Tax: ${client.client2_income_tax ? formatCurrency(client.client2_income_tax) : 'Not specified'}
+- Centrelink Received: ${client.client2_centrelink_received ? formatCurrency(client.client2_centrelink_received) : 'Not specified'}` : ''}
+
+Household Financial Summary:
+- Total Lifestyle Assets: ${formatCurrency(client.total_lifestyle_assets || 0)}
+- Total Living Expenses: ${formatCurrency(client.total_living_expenses || 0)}
+- Total Investment Assets: ${formatCurrency(client.total_investment_assets || 0)}
+
+Consultation Details:
+- Date: ${new Date(client.consultation_date).toLocaleDateString()}
+- Advisor: ${client.advisor_name}
+${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
 
     try {
       // Add the message directly to the database
@@ -39,7 +58,7 @@ export function ClientTable({ client, onPlaceInChat }: ClientTableProps) {
         .from('messages')
         .insert([
           { 
-            content: clientSummary, 
+            content: clientDetails, 
             type: 'received',
             metadata: { clientId: client.id } 
           }
@@ -50,7 +69,7 @@ export function ClientTable({ client, onPlaceInChat }: ClientTableProps) {
       // Show success toast
       toast({
         title: "Client Details Added",
-        description: "Client details have been added to the chat.",
+        description: "Complete client details have been added to the chat.",
       });
 
       // Explicitly trigger a refresh of the messages via the callback
