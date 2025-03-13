@@ -6,7 +6,17 @@ import { useToast } from "@/hooks/use-toast";
 import { useMessages } from "@/hooks/useMessages";
 import { storeMessage, invokeChatAssistant } from "@/utils/supabaseUtils";
 import { Button } from "./ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, ChevronDown, User2 } from "lucide-react";
+import { ClientMetadata } from "@/types/chat";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { ClientData } from "./client-data/types";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ChatInterfaceProps {
   onSendMessage?: (message: string) => void;
@@ -16,6 +26,25 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { messages, currentClientData, clearMessages } = useMessages();
   const { toast } = useToast();
+  const [selectedFieldToCopy, setSelectedFieldToCopy] = useState<string | null>(null);
+
+  // Fetch client data if we have a client ID
+  const { data: clientData } = useQuery({
+    queryKey: ['client', currentClientData?.clientId],
+    queryFn: async () => {
+      if (!currentClientData?.clientId) return null;
+      
+      const { data, error } = await supabase
+        .from('clients_financial_data')
+        .select('*')
+        .eq('id', currentClientData.clientId)
+        .single();
+        
+      if (error) throw error;
+      return data as ClientData;
+    },
+    enabled: !!currentClientData?.clientId,
+  });
 
   const handleSend = async (content: string) => {
     setIsLoading(true);
@@ -66,9 +95,80 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
     });
   };
 
+  const getFieldDisplayName = (fieldName: string): string => {
+    // Convert snake_case to Title Case with spaces
+    return fieldName
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const handleInsertClientData = (field: string) => {
+    if (!clientData) return;
+    
+    const fieldValue = clientData[field as keyof ClientData];
+    if (fieldValue === null || fieldValue === undefined) return;
+    
+    // Format currency values
+    const formattedValue = typeof fieldValue === 'number' 
+      ? `$${fieldValue.toLocaleString()}`
+      : String(fieldValue);
+    
+    const fieldDisplayName = getFieldDisplayName(field);
+    setSelectedFieldToCopy(`${fieldDisplayName}: ${formattedValue}`);
+    
+    toast({
+      title: "Client Data Ready",
+      description: `"${fieldDisplayName}: ${formattedValue}" is ready to paste in your message.`,
+    });
+  };
+
   return (
     <div className="flex flex-col h-full bg-white">
-      <div className="flex justify-end p-2 border-b">
+      <div className="flex justify-between p-2 border-b">
+        <div className="flex items-center">
+          {currentClientData?.clientId && clientData && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="flex items-center gap-1">
+                  <User2 className="h-4 w-4" />
+                  <span className="max-w-[150px] truncate">{clientData.client1_name}</span>
+                  <ChevronDown className="h-3 w-3 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-60">
+                <DropdownMenuItem onClick={() => handleInsertClientData('client1_name')}>
+                  Name
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleInsertClientData('client1_gross_salary')}>
+                  Gross Salary
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleInsertClientData('client1_super_balance')}>
+                  Super Balance
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleInsertClientData('client1_work_status')}>
+                  Work Status
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleInsertClientData('client1_health')}>
+                  Health Status
+                </DropdownMenuItem>
+                {clientData.client2_name && (
+                  <>
+                    <DropdownMenuItem onClick={() => handleInsertClientData('client2_name')}>
+                      Partner Name
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleInsertClientData('client2_gross_salary')}>
+                      Partner Gross Salary
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleInsertClientData('client2_super_balance')}>
+                      Partner Super Balance
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
         <Button 
           variant="outline" 
           size="sm" 
@@ -80,7 +180,12 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
         </Button>
       </div>
       <MessageList messages={messages} />
-      <MessageInput onSend={handleSend} isLoading={isLoading} />
+      <MessageInput 
+        onSend={handleSend} 
+        isLoading={isLoading} 
+        clientDataSnippet={selectedFieldToCopy}
+        onClearClientDataSnippet={() => setSelectedFieldToCopy(null)}
+      />
     </div>
   );
 }
