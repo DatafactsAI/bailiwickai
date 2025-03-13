@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   Table,
@@ -11,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { ClientData } from './types';
 import { formatCurrency } from './utils';
 import { MessageSquare } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface ClientTableProps {
   client: ClientData;
@@ -18,19 +21,63 @@ interface ClientTableProps {
 }
 
 export function ClientTable({ client, onPlaceInChat }: ClientTableProps) {
+  const { toast } = useToast();
+
+  const handlePlaceInChat = async () => {
+    // Create a formatted string with client details
+    const clientSummary = `Client Financial Summary for ${client.client1_name}:
+- Gross Salary: ${formatCurrency(client.client1_gross_salary)}
+- Super Balance: ${formatCurrency(client.client1_super_balance)}
+- Health Status: ${client.client1_health || 'Not specified'}
+- Work Status: ${client.client1_work_status || 'Not specified'}
+- Total Lifestyle Assets: ${formatCurrency(client.total_lifestyle_assets)}
+- Total Investment Assets: ${formatCurrency(client.total_investment_assets)}`;
+
+    try {
+      // Directly store the message in the database instead of using localStorage
+      const { error } = await supabase
+        .from('messages')
+        .insert([
+          { 
+            content: clientSummary, 
+            type: 'received',
+            metadata: { clientId: client.id } 
+          }
+        ]);
+
+      if (error) throw error;
+
+      // Show success toast
+      toast({
+        title: "Client Details Added",
+        description: "Client details have been added to the chat.",
+      });
+
+      // Close the client data viewer if the callback is provided
+      if (onPlaceInChat) {
+        onPlaceInChat();
+      }
+    } catch (error) {
+      console.error("Error adding client details to chat:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add client details to chat.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-4">
-      {onPlaceInChat && (
-        <div className="flex justify-end">
-          <Button 
-            onClick={onPlaceInChat}
-            className="bg-[#0284C7] hover:bg-[#0369A1]"
-          >
-            <MessageSquare className="h-4 w-4 mr-2" />
-            Place Details in Chat
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-end">
+        <Button 
+          onClick={handlePlaceInChat}
+          className="bg-[#0284C7] hover:bg-[#0369A1]"
+        >
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Place Details in Chat
+        </Button>
+      </div>
       
       <div className="overflow-x-auto">
         <Table>

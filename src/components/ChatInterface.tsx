@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MessageList } from "./chat/MessageList";
 import { MessageInput } from "./MessageInput";
@@ -27,40 +26,6 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
   const { messages, currentClientData, clearMessages } = useMessages();
   const { toast } = useToast();
   const [selectedFieldToCopy, setSelectedFieldToCopy] = useState<string | null>(null);
-
-  // Check for client details in localStorage
-  useEffect(() => {
-    const clientDetails = localStorage.getItem('clientDetailsForChat');
-    if (clientDetails) {
-      // If we find client details, store them as a received message
-      handleIncomingClientDetails(clientDetails);
-      // Clear the localStorage item to prevent duplicate messages
-      localStorage.removeItem('clientDetailsForChat');
-    }
-  }, []);
-
-  // Function to handle incoming client details
-  const handleIncomingClientDetails = async (clientDetails: string) => {
-    try {
-      const { error } = await storeMessage(clientDetails, 'received', currentClientData);
-      
-      if (error) {
-        throw new Error("Failed to store client details in chat");
-      }
-      
-      toast({
-        title: "Client Details Added",
-        description: "Client details have been added to the chat.",
-      });
-    } catch (error) {
-      console.error("Error adding client details:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to add client details to chat.",
-        variant: "destructive",
-      });
-    }
-  };
 
   // Fetch client data if we have a client ID
   const { data: clientData } = useQuery({
