@@ -21,6 +21,7 @@ export default function Index() {
   const handleClientDetailsPlaced = () => {
     // Invalidate queries when client details are placed in chat
     queryClient.invalidateQueries({ queryKey: ['messages'] });
+    queryClient.invalidateQueries({ queryKey: ['client', selectedClientId] });
   };
 
   return (
@@ -29,7 +30,10 @@ export default function Index() {
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-[#0284C7]">Bailiwick AI</h1>
           <div className="flex gap-3">
-            <ClientDataViewer onClientSelect={handleClientSelect} />
+            <ClientDataViewer 
+              onClientSelect={handleClientSelect} 
+              onClientDetailsPlaced={handleClientDetailsPlaced}
+            />
             <FinancialPlanWriter />
           </div>
         </div>

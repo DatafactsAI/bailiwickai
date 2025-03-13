@@ -85,10 +85,47 @@ serve(async (req) => {
       }
     }
 
+    // Before processing with OpenAI, get the latest client data for this conversation
+    let enrichedClientData = clientData;
+    if (clientData?.clientId) {
+      try {
+        console.log(`[${requestId}] Fetching latest client data for ID: ${clientData.clientId}`);
+        const { data: latestClientData, error } = await supabase
+          .from('clients_financial_data')
+          .select('*')
+          .eq('id', clientData.clientId)
+          .single();
+          
+        if (error) {
+          console.error(`[${requestId}] Error fetching client data:`, error);
+        } else if (latestClientData) {
+          console.log(`[${requestId}] Using latest client data for context enrichment`);
+          // Combine the current metadata with the latest data from the database
+          enrichedClientData = {
+            ...clientData,
+            client1_name: latestClientData.client1_name,
+            client1_gross_salary: latestClientData.client1_gross_salary,
+            client1_super_balance: latestClientData.client1_super_balance,
+            client1_health: latestClientData.client1_health,
+            client1_work_status: latestClientData.client1_work_status,
+            total_lifestyle_assets: latestClientData.total_lifestyle_assets,
+            total_investment_assets: latestClientData.total_investment_assets,
+          };
+          
+          if (latestClientData.client2_name) {
+            enrichedClientData.client2_gross_salary = latestClientData.client2_gross_salary;
+            enrichedClientData.client2_super_balance = latestClientData.client2_super_balance;
+          }
+        }
+      } catch (fetchError) {
+        console.error(`[${requestId}] Error in client data fetch:`, fetchError);
+      }
+    }
+
     // Process message with appropriate context
-    console.log(`[${requestId}] Processing chat message`);
-    const enhancedMessage = clientData?.clientId 
-      ? enhanceMessageWithContext(message, clientData)
+    console.log(`[${requestId}] Processing chat message with enriched data:`, enrichedClientData);
+    const enhancedMessage = enrichedClientData?.clientId 
+      ? enhanceMessageWithContext(message, enrichedClientData)
       : message;
 
     const headers = {
@@ -158,7 +195,7 @@ serve(async (req) => {
         content: aiResponse,
         type: 'received',
         timestamp: new Date().toISOString(),
-        metadata: clientData || {}
+        metadata: enrichedClientData || {}
       }]);
 
     console.log(`[${requestId}] Chat response prepared`);

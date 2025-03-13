@@ -1,3 +1,4 @@
+
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -9,18 +10,41 @@ interface ClientData {
   client1_super_balance?: number;
   client2_gross_salary?: number;
   client2_super_balance?: number;
+  // Add any other client data fields that might be present in the metadata
+  client1_name?: string;
+  client1_health?: string;
+  client1_work_status?: string;
+  total_lifestyle_assets?: number;
+  total_investment_assets?: number;
 }
 
 export function enhanceMessageWithContext(message: string, clientData?: ClientData): string {
   if (clientData?.clientId) {
     let context = `Context: You are a financial advisor assistant. `;
     
+    // Add Client's name if available
+    if (clientData.client1_name) {
+      context += `The client's name is ${clientData.client1_name}. `;
+    }
+    
     // Add Client 1's information
     if (clientData.client1_gross_salary !== undefined) {
-      context += `Client 1's gross salary is $${clientData.client1_gross_salary}. `;
+      context += `Client's gross salary is $${clientData.client1_gross_salary}. `;
     }
     if (clientData.client1_super_balance !== undefined) {
-      context += `Client 1's super balance is $${clientData.client1_super_balance}. `;
+      context += `Client's super balance is $${clientData.client1_super_balance}. `;
+    }
+    if (clientData.client1_health !== undefined) {
+      context += `Client's health status is ${clientData.client1_health}. `;
+    }
+    if (clientData.client1_work_status !== undefined) {
+      context += `Client's work status is ${clientData.client1_work_status}. `;
+    }
+    if (clientData.total_lifestyle_assets !== undefined) {
+      context += `Client's total lifestyle assets are $${clientData.total_lifestyle_assets}. `;
+    }
+    if (clientData.total_investment_assets !== undefined) {
+      context += `Client's total investment assets are $${clientData.total_investment_assets}. `;
     }
     
     // Add Client 2's information
@@ -33,6 +57,8 @@ export function enhanceMessageWithContext(message: string, clientData?: ClientDa
     
     context += `\n\nYou can update client data when asked. For example, if someone asks to "change super balance to $100,000", you should update the database.\n\n`;
     context += `Question: ${message}`;
+    
+    console.log("Enhanced context:", context);
     return context;
   }
   return `You are a knowledgeable financial advisor assistant. Please provide helpful advice based on this question: ${message}`;

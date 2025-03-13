@@ -13,9 +13,10 @@ import { ZapierWebhookForm } from './ZapierWebhookForm';
 
 interface ClientDataViewerProps {
   onClientSelect: (clientId: string | null) => void;
+  onClientDetailsPlaced?: () => void;
 }
 
-export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
+export function ClientDataViewer({ onClientSelect, onClientDetailsPlaced }: ClientDataViewerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [webhookUrl, setWebhookUrl] = useState<string>('');
@@ -75,6 +76,11 @@ export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
     
     // Force refresh of the messages
     queryClient.invalidateQueries({ queryKey: ['messages'] });
+    
+    // Notify parent component
+    if (onClientDetailsPlaced) {
+      onClientDetailsPlaced();
+    }
   };
 
   if (!isOpen) {

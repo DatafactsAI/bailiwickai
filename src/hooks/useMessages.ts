@@ -28,10 +28,13 @@ export function useMessages() {
         }));
         setMessages(formattedMessages);
         
+        // Find the most recent message with client data
         const lastMessageWithClientData = [...formattedMessages]
           .reverse()
           .find(msg => msg.metadata?.clientId);
+          
         if (lastMessageWithClientData?.metadata) {
+          console.log("Found client data in messages:", lastMessageWithClientData.metadata);
           setCurrentClientData(lastMessageWithClientData.metadata);
         }
       }
@@ -76,8 +79,9 @@ export function useMessages() {
                 metadata: newMsg.metadata
               };
               
-              // If message has client metadata, update current client data
+              // Update current client data if this message has client metadata
               if (newMsg.metadata?.clientId) {
+                console.log("Updating current client data from new message:", newMsg.metadata);
                 setCurrentClientData(newMsg.metadata);
               }
               
@@ -95,6 +99,7 @@ export function useMessages() {
 
   const clearMessages = () => {
     setMessages([]);
+    setCurrentClientData(undefined);
   };
 
   return { messages, currentClientData, clearMessages };
