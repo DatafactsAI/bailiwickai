@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText } from "lucide-react";
+import { FileText, MessageSquare } from "lucide-react";
 import { ClientTable } from './client-data/ClientTable';
 import { ClientSelector } from './client-data/ClientSelector';
 import { ClientData } from './client-data/types';
@@ -121,7 +122,27 @@ export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
           />
         )}
 
-        {selectedClient && <ClientTable client={selectedClient} />}
+        {selectedClient && (
+          <ClientTable 
+            client={selectedClient} 
+            onPlaceInChat={() => {
+              // Create a formatted string with client details
+              const clientSummary = `Client Financial Summary for ${selectedClient.client1_name}:
+- Gross Salary: ${new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(selectedClient.client1_gross_salary)}
+- Super Balance: ${new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(selectedClient.client1_super_balance)}
+- Health Status: ${selectedClient.client1_health || 'Not specified'}
+- Work Status: ${selectedClient.client1_work_status || 'Not specified'}
+- Total Lifestyle Assets: ${new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(selectedClient.total_lifestyle_assets)}
+- Total Investment Assets: ${new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(selectedClient.total_investment_assets)}`;
+
+              // Store this summary in local storage for the chat component to pick up
+              localStorage.setItem('clientDetailsForChat', clientSummary);
+              
+              // Close the client data viewer
+              setIsOpen(false);
+            }}
+          />
+        )}
       </div>
     </Card>
   );
