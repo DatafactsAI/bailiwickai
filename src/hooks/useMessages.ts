@@ -8,6 +8,7 @@ export function useMessages() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentClientData, setCurrentClientData] = useState<ClientMetadata | undefined>();
 
+  // Initial load of messages
   useEffect(() => {
     const loadMessages = async () => {
       const { data, error } = await fetchMessages();
@@ -39,6 +40,7 @@ export function useMessages() {
     loadMessages();
   }, []);
 
+  // Real-time subscription to message changes
   useEffect(() => {
     const channel = supabase
       .channel('schema-db-changes')
@@ -50,16 +52,19 @@ export function useMessages() {
           table: 'messages'
         },
         (payload) => {
-          const newMsg = payload.new as { 
-            id: string; 
-            content: string; 
-            timestamp: string; 
-            type: string;
-            metadata: ClientMetadata;
-          };
+          console.log("Realtime update received:", payload);
           
           if (payload.eventType === 'INSERT') {
+            const newMsg = payload.new as { 
+              id: string; 
+              content: string; 
+              timestamp: string; 
+              type: string;
+              metadata: ClientMetadata;
+            };
+            
             setMessages(prev => {
+              // Check if message already exists to avoid duplicates
               const exists = prev.some(msg => msg.id === newMsg.id);
               if (exists) return prev;
               
@@ -71,6 +76,7 @@ export function useMessages() {
                 metadata: newMsg.metadata
               };
               
+              // If message has client metadata, update current client data
               if (newMsg.metadata?.clientId) {
                 setCurrentClientData(newMsg.metadata);
               }

@@ -34,7 +34,7 @@ export function ClientTable({ client, onPlaceInChat }: ClientTableProps) {
 - Total Investment Assets: ${formatCurrency(client.total_investment_assets)}`;
 
     try {
-      // Directly store the message in the database instead of using localStorage
+      // Add the message directly to the database
       const { error } = await supabase
         .from('messages')
         .insert([
@@ -53,7 +53,7 @@ export function ClientTable({ client, onPlaceInChat }: ClientTableProps) {
         description: "Client details have been added to the chat.",
       });
 
-      // Close the client data viewer if the callback is provided
+      // Explicitly trigger a refresh of the messages via the callback
       if (onPlaceInChat) {
         onPlaceInChat();
       }

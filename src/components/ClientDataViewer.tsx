@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -34,6 +35,9 @@ export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
         () => {
           // Invalidate and refetch queries when data changes
           queryClient.invalidateQueries({ queryKey: ['clients'] });
+          
+          // Also invalidate messages to ensure chat is updated with latest client data
+          queryClient.invalidateQueries({ queryKey: ['messages'] });
         }
       )
       .subscribe();
@@ -61,6 +65,16 @@ export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
   const handleClientSelect = async (clientId: string) => {
     setSelectedClientId(clientId);
     onClientSelect(clientId);
+  };
+
+  const handleClientDetailsPlaced = () => {
+    // When client details are placed in chat, close the viewer and invalidate messages
+    setIsOpen(false);
+    setSelectedClientId(null);
+    onClientSelect(null);
+    
+    // Force refresh of the messages
+    queryClient.invalidateQueries({ queryKey: ['messages'] });
   };
 
   if (!isOpen) {
@@ -124,9 +138,7 @@ export function ClientDataViewer({ onClientSelect }: ClientDataViewerProps) {
         {selectedClient && (
           <ClientTable 
             client={selectedClient} 
-            onPlaceInChat={() => {
-              setIsOpen(false);
-            }}
+            onPlaceInChat={handleClientDetailsPlaced}
           />
         )}
       </div>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { MessageList } from "./chat/MessageList";
 import { MessageInput } from "./MessageInput";
@@ -26,10 +27,16 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
   const { messages, currentClientData, clearMessages } = useMessages();
   const { toast } = useToast();
   const [selectedFieldToCopy, setSelectedFieldToCopy] = useState<string | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Manually refresh messages when needed
+  const refreshMessages = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   // Fetch client data if we have a client ID
   const { data: clientData } = useQuery({
-    queryKey: ['client', currentClientData?.clientId],
+    queryKey: ['client', currentClientData?.clientId, refreshTrigger],
     queryFn: async () => {
       if (!currentClientData?.clientId) return null;
       
@@ -69,6 +76,9 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
       if (onSendMessage) {
         onSendMessage(content);
       }
+      
+      // Force refresh after sending a message
+      refreshMessages();
 
       toast({
         title: "Message Sent",
