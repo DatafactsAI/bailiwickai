@@ -110,7 +110,8 @@ export function FinancialPlanWriter() {
           total_living_expenses: selectedClient.total_living_expenses,
           total_investment_assets: selectedClient.total_investment_assets,
           consultation_date: selectedClient.consultation_date,
-          advisor_name: selectedClient.advisor_name
+          advisor_name: selectedClient.advisor_name,
+          advisor_advice: selectedClient.advisor_advice // Added advisor advice to the data sent to Zapier
         }),
       });
 
