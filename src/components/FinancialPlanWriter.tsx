@@ -2,13 +2,13 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { PenLine, Loader2 } from "lucide-react";
 import { ClientSelector } from './client-data/ClientSelector';
-import { ClientData } from './client-data/types';
-import { useToast } from "@/components/ui/use-toast";
-import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { WebhookInputForm } from './financial-plan/WebhookInputForm';
+import { WebhookInstructions } from './financial-plan/WebhookInstructions';
+import { useClientData } from '@/hooks/useClientData';
+import { useClientDataSubscription } from '@/hooks/useClientDataSubscription';
 
 export function FinancialPlanWriter() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,46 +16,10 @@ export function FinancialPlanWriter() {
   const [webhookUrl, setWebhookUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { data: clientsData, isLoading: isLoadingClients } = useClientData();
 
-  // Set up real-time subscription to clients_financial_data
-  React.useEffect(() => {
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'clients_financial_data'
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['clients'] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
-  const { data: clientsData, isLoading: isLoadingClients } = useQuery({
-    queryKey: ['clients'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('clients_financial_data')
-        .select('*')
-        .order('consultation_date', { ascending: false });
-
-      if (error) throw error;
-      return data as ClientData[];
-    },
-  });
-
-  const handleClientSelect = (clientId: string) => {
-    setSelectedClientId(clientId);
-  };
+  // Set up real-time subscription
+  useClientDataSubscription();
 
   const handleGeneratePlan = async () => {
     if (!webhookUrl) {
@@ -83,7 +47,7 @@ export function FinancialPlanWriter() {
     console.log("Sending client data to Zapier webhook");
 
     try {
-      const response = await fetch(webhookUrl, {
+      await fetch(webhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,7 +75,7 @@ export function FinancialPlanWriter() {
           total_investment_assets: selectedClient.total_investment_assets,
           consultation_date: selectedClient.consultation_date,
           advisor_name: selectedClient.advisor_name,
-          advisor_advice: selectedClient.advisor_advice // Added advisor advice to the data sent to Zapier
+          advisor_advice: selectedClient.advisor_advice
         }),
       });
 
@@ -170,24 +134,15 @@ export function FinancialPlanWriter() {
             <ClientSelector
               clients={clientsData}
               selectedClientId={selectedClientId}
-              onClientSelect={handleClientSelect}
+              onClientSelect={setSelectedClientId}
             />
           </div>
         )}
 
-        <div>
-          <label htmlFor="webhook-url" className="block text-sm font-medium mb-2">
-            Zapier Webhook URL
-          </label>
-          <Input
-            id="webhook-url"
-            type="url"
-            value={webhookUrl}
-            onChange={(e) => setWebhookUrl(e.target.value)}
-            placeholder="Enter your Zapier webhook URL"
-            className="w-full"
-          />
-        </div>
+        <WebhookInputForm 
+          webhookUrl={webhookUrl}
+          setWebhookUrl={setWebhookUrl}
+        />
 
         <Button
           onClick={handleGeneratePlan}
@@ -204,16 +159,7 @@ export function FinancialPlanWriter() {
           )}
         </Button>
 
-        <div className="mt-4 text-sm text-gray-600">
-          <p>To set up your Zapier webhook:</p>
-          <ol className="list-decimal ml-4 mt-2 space-y-2">
-            <li>Create a new Zap in Zapier</li>
-            <li>Choose "Webhook" as your trigger</li>
-            <li>Select "Catch Hook" as the webhook type</li>
-            <li>Copy the webhook URL provided by Zapier</li>
-            <li>Paste it above and click "Generate Financial Plan"</li>
-          </ol>
-        </div>
+        <WebhookInstructions />
       </div>
     </Card>
   );
