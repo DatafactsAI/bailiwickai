@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
@@ -17,10 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 interface AdvisorAdviceButtonProps {
   selectedClientId: string | null;
   onAdviceAdded: () => void;
-  webhookUrl?: string;
 }
 
-export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded, webhookUrl }: AdvisorAdviceButtonProps) {
+export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded }: AdvisorAdviceButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [advice, setAdvice] = useState('');
@@ -57,36 +55,10 @@ export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded, webhookUr
 
       if (updateError) throw updateError;
 
-      // Send to Zapier webhook if URL is provided
-      if (webhookUrl && updatedClient) {
-        try {
-          await fetch(webhookUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            mode: "no-cors",
-            body: JSON.stringify(updatedClient),
-          });
-
-          toast({
-            title: "Success",
-            description: "Advice has been saved and sent to Zapier",
-          });
-        } catch (webhookError) {
-          console.error("Error sending to webhook:", webhookError);
-          toast({
-            title: "Partial Success",
-            description: "Advice saved but failed to send to Zapier",
-            variant: "destructive",
-          });
-        }
-      } else {
-        toast({
-          title: "Success",
-          description: "Advice has been saved",
-        });
-      }
+      toast({
+        title: "Success",
+        description: "Advice has been saved",
+      });
 
       onAdviceAdded();
       setIsOpen(false);
@@ -106,52 +78,52 @@ export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded, webhookUr
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button
-          onClick={(e) => {
-            if (!selectedClientId) {
-              e.preventDefault();
-              toast({
-                title: "Error",
-                description: "Please select a client first",
-                variant: "destructive",
-              });
-              return;
-            }
-          }}
-          className="bg-[#9b87f5] hover:bg-[#8B5CF6]"
-          disabled={isLoading}
+        <Button 
+          variant="purple" 
+          size="sm"
         >
-          {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <MessageSquarePlus className="h-4 w-4 mr-2" />
-          )}
+          <MessageSquarePlus className="w-4 h-4 mr-1" />
           Add Advisor Advice
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Advisor Advice</DialogTitle>
           <DialogDescription>
-            Enter your advice for the selected client below.
+            Enter professional advice for this client. This will be stored with their financial data.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
+        <div className="space-y-4 py-4">
           <Textarea
-            placeholder="Enter your advice here..."
+            placeholder="Enter your professional advice here..."
             value={advice}
             onChange={(e) => setAdvice(e.target.value)}
-            className="min-h-[200px]"
+            className="min-h-[150px]"
           />
-          <Button
-            onClick={handleAddAdvice}
-            disabled={isLoading}
-            className="w-full"
+        </div>
+        <div className="flex justify-end gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setIsOpen(false);
+              setAdvice('');
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleAddAdvice} 
+            disabled={isLoading || !advice.trim()}
+            variant="green"
           >
             {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : null}
-            Save Advice
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                Saving...
+              </>
+            ) : (
+              'Save Advice'
+            )}
           </Button>
         </div>
       </DialogContent>

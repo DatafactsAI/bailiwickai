@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { MessageList } from "./chat/MessageList";
 import { MessageInput } from "./MessageInput";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +21,7 @@ interface ChatInterfaceProps {
   onSendMessage?: (message: string) => void;
 }
 
-export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
+export const ChatInterface = memo(({ onSendMessage }: ChatInterfaceProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { messages, currentClientData, clearMessages } = useMessages();
   const { toast } = useToast();
@@ -30,9 +29,9 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Manually refresh messages when needed
-  const refreshMessages = () => {
+  const refreshMessages = useCallback(() => {
     setRefreshTrigger(prev => prev + 1);
-  };
+  }, []);
 
   // Fetch client data if we have a client ID
   const { data: clientData } = useQuery({
@@ -52,7 +51,9 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
     enabled: !!currentClientData?.clientId,
   });
 
-  const handleSend = async (content: string) => {
+  const handleSendMessage = useCallback(async (content: string) => {
+    if (!content.trim()) return;
+
     setIsLoading(true);
     
     try {
@@ -94,25 +95,25 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [onSendMessage, toast, currentClientData, refreshMessages]);
 
-  const handleClearChat = () => {
+  const handleClearChat = useCallback(() => {
     clearMessages();
     toast({
       title: "Chat Cleared",
       description: "All messages have been cleared from the UI.",
     });
-  };
+  }, [clearMessages, toast]);
 
-  const getFieldDisplayName = (fieldName: string): string => {
+  const getFieldDisplayName = useCallback((fieldName: string): string => {
     // Convert snake_case to Title Case with spaces
     return fieldName
       .split('_')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-  };
+  }, []);
 
-  const handleInsertClientData = (field: string) => {
+  const handleInsertClientData = useCallback((field: string) => {
     if (!clientData) return;
     
     const fieldValue = clientData[field as keyof ClientData];
@@ -130,7 +131,7 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
       title: "Client Data Ready",
       description: `"${fieldDisplayName}: ${formattedValue}" is ready to paste in your message.`,
     });
-  };
+  }, [clientData, toast, getFieldDisplayName]);
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -190,11 +191,11 @@ export function ChatInterface({ onSendMessage }: ChatInterfaceProps) {
       </div>
       <MessageList messages={messages} />
       <MessageInput 
-        onSend={handleSend} 
+        onSend={handleSendMessage} 
         isLoading={isLoading} 
         clientDataSnippet={selectedFieldToCopy}
         onClearClientDataSnippet={() => setSelectedFieldToCopy(null)}
       />
     </div>
   );
-}
+});
