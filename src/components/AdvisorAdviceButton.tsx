@@ -83,12 +83,12 @@ export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded }: Advisor
           size="sm"
         >
           <MessageSquarePlus className="w-4 h-4 mr-1" />
-          Add Advisor Advice
+          Add Advisor Comments
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[65%] w-full">
         <DialogHeader>
-          <DialogTitle>Add Advisor Advice</DialogTitle>
+          <DialogTitle>Add Advisor Comments</DialogTitle>
           <DialogDescription>
             Enter professional advice for this client. This will be stored with their financial data.
           </DialogDescription>
@@ -98,7 +98,7 @@ export function AdvisorAdviceButton({ selectedClientId, onAdviceAdded }: Advisor
             placeholder="Enter your professional advice here..."
             value={advice}
             onChange={(e) => setAdvice(e.target.value)}
-            className="min-h-[150px]"
+            className="min-h-[300px]"
           />
         </div>
         <div className="flex justify-end gap-3">

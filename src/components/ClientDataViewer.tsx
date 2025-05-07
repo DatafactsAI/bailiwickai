@@ -96,16 +96,16 @@ export function ClientDataViewer({ onClientSelect, onClientDetailsPlaced }: Clie
 
   if (isLoading) {
     return (
-      <Card className="fixed top-4 right-4 w-[90vw] max-w-3xl p-6 z-50 bg-white shadow-lg">
+      <Card className="fixed inset-0 m-auto w-[90vw] max-w-5xl h-[85vh] p-6 z-50 bg-white shadow-lg flex flex-col overflow-auto">
         <div>Loading...</div>
       </Card>
     );
   }
 
   return (
-    <Card className="fixed top-4 right-4 w-[90vw] max-w-3xl p-6 z-50 bg-white shadow-lg max-h-[90vh] flex flex-col">
+    <Card className="fixed inset-0 m-auto w-[90vw] max-w-5xl h-[85vh] p-6 z-50 bg-white shadow-lg flex flex-col overflow-auto">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">Client Financial Data</h2>
+        <h2 className="text-2xl font-bold">Client Financial Data Canvas</h2>
         <div className="flex gap-2">
           {selectedClientId && (
             <AdvisorAdviceButton
