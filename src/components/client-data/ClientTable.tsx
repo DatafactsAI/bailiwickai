@@ -23,6 +23,7 @@ import { fetchClientInsurance, upsertClientInsurance, updateTotalClientInsurance
 import { fetchAdviceReasons, fetchClientSelectedReasons, updateClientSelectedReasons } from '@/integrations/supabase/adviceReasons';
 import { fetchAdviceCoverageAreas, fetchClientSelectedCoverageAreas, updateClientSelectedCoverageAreas } from '@/integrations/supabase/adviceCoverage';
 import { fetchAdvisorRecommendations, updateAdvisorRecommendations } from '@/integrations/supabase/advisorRecommendations';
+import { fetchProductRecommendations, saveProductRecommendations, ProductRecommendation } from '@/integrations/supabase/productRecommendations';
 import { fetchClientGoalsObjectives, updateClientGoalsObjectives, ClientGoalObjective, GoalCategory, GoalPriority, GoalTimeframe } from '@/integrations/supabase/clientGoalsObjectives';
 
 interface ClientTableProps {
@@ -52,6 +53,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   const [showAdviceCoverageModal, setShowAdviceCoverageModal] = useState(false);
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false);
   const [showGoalsObjectivesModal, setShowGoalsObjectivesModal] = useState(false);
+  const [showProductRecommendationsModal, setShowProductRecommendationsModal] = useState(false);
   // Asset state: up to 8 assets
   const [lifestyleAssets, setLifestyleAssets] = useState([
     { name: '', value: '', owner: 'Client 1' },
@@ -80,6 +82,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   const [adviceCoverageLoading, setAdviceCoverageLoading] = useState(false);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [goalsObjectivesLoading, setGoalsObjectivesLoading] = useState(false);
+  const [productRecommendationsLoading, setProductRecommendationsLoading] = useState(false);
   const [adviceReasons, setAdviceReasons] = useState<Array<{ id: string; reason_text: string; category: string }>>([]);
   const [selectedReasonIds, setSelectedReasonIds] = useState<string[]>([]);
   const [reasonStatements, setReasonStatements] = useState<Record<string, string>>({});
@@ -96,6 +99,17 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
     { recommendation_text: '' },
     { recommendation_text: '' }
   ]);
+  const [productRecommendations, setProductRecommendations] = useState<ProductRecommendation[]>([  
+    { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+    { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+    { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+    { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+    { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+    { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+    { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+    { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' }
+  ]);
+  
   const [goalsObjectives, setGoalsObjectives] = useState<ClientGoalObjective[]>([
     { client_id: client.id, category: 'Retirement', statement: '', priority: 'Medium', amount: 0, timeframe: 'Up to Five Years' },
     { client_id: client.id, category: 'Cash Flow', statement: '', priority: 'Medium', amount: 0, timeframe: 'Up to Five Years' },
@@ -435,6 +449,39 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
         .finally(() => setGoalsObjectivesLoading(false));
     }
   }, [showGoalsObjectivesModal, client.id]);
+  
+  useEffect(() => {
+    if (showProductRecommendationsModal) {
+      setProductRecommendationsLoading(true);
+      fetchProductRecommendations(client.id)
+        .then((result) => {
+          if (result.recommendations.length > 0) {
+            setProductRecommendations(result.recommendations);
+          } else {
+            // Initialize with empty recommendations
+            setProductRecommendations([
+              { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+              { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+              { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+              { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+              { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+              { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+              { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
+              { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' }
+            ]);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching product recommendations:', error);
+          toast({
+            title: 'Error fetching product recommendations',
+            description: 'Failed to load product recommendations',
+            variant: 'destructive',
+          });
+        })
+        .finally(() => setProductRecommendationsLoading(false));
+    }
+  }, [showProductRecommendationsModal, client.id, toast]);
 
   // Save handler
   const handleSaveLifestyleAssets = async () => {
@@ -790,33 +837,32 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   const handleSaveGoalsObjectives = async () => {
     setGoalsObjectivesLoading(true);
     try {
-      const updateResult = await updateClientGoalsObjectives(client.id, goalsObjectives);
-      
-      if (!updateResult.success) {
+      // Ensure all goals have the client ID
+      const goalsWithClientId = goalsObjectives.map(goal => ({
+        ...goal,
+        client_id: client.id
+      }));
+
+      const result = await updateClientGoalsObjectives(goalsWithClientId);
+      if (result.error) {
         toast({
-          title: 'Failed to save goals and objectives',
-          description: updateResult.error || 'Unknown error',
+          title: 'Error',
+          description: result.error,
           variant: 'destructive',
         });
-        return;
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Goals and objectives saved successfully',
+        });
+        setShowGoalsObjectivesModal(false);
+        if (onDataSaved) onDataSaved();
       }
-      
-      setShowGoalsObjectivesModal(false);
-      
-      // Optionally, refresh parent or local state
-      if (onDataSaved) {
-        onDataSaved();
-      }
-      
+    } catch (error) {
+      console.error('Error saving goals and objectives:', error);
       toast({
-        title: 'Goals and objectives saved',
-        description: 'Goals and objectives have been saved successfully.',
-        variant: 'default',
-      });
-    } catch (err: any) {
-      toast({
-        title: 'Failed to save goals and objectives',
-        description: err.message || 'Unknown error',
+        title: 'Error',
+        description: 'Failed to save goals and objectives',
         variant: 'destructive',
       });
     } finally {
@@ -824,9 +870,80 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
     }
   };
 
+  const handleSaveProductRecommendations = async () => {
+    setProductRecommendationsLoading(true);
+    try {
+      // Ensure all recommendations have the client ID
+      const recommendationsWithClientId = productRecommendations.map(rec => ({
+        ...rec,
+        client_id: client.id
+      }));
+
+      const result = await saveProductRecommendations(recommendationsWithClientId);
+      if (!result.success) {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to save product recommendations',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Product recommendations saved successfully',
+        });
+        setShowProductRecommendationsModal(false);
+        if (onDataSaved) onDataSaved();
+      }
+    } catch (error) {
+      console.error('Error saving product recommendations:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to save product recommendations',
+        variant: 'destructive',
+      });
+    } finally {
+      setProductRecommendationsLoading(false);
+    }
+  };
+
   useEffect(() => {
     console.log("Client data received:", client);
     console.log("Editable client data initialized:", editableClientData);
+    
+    // Load advice reasons data when component mounts
+    fetchClientSelectedReasons(client.id)
+      .then((result) => {
+        if (!result.error) {
+          setSelectedReasonIds(result.selectedReasons);
+          setReasonStatements(result.reasonStatements || {});
+        }
+      })
+      .catch((err) => {
+        console.error('Error loading advice reasons on mount:', err);
+      });
+      
+    // Load advice coverage areas when component mounts
+    fetchClientSelectedCoverageAreas(client.id)
+      .then((result) => {
+        if (!result.error) {
+          setSelectedCoverageAreaIds(result.selectedCoverageAreaIds);
+          setCoverageAreaStatements(result.coverageAreaStatements || {});
+        }
+      })
+      .catch((err) => {
+        console.error('Error loading advice coverage areas on mount:', err);
+      });
+      
+    // Load product recommendations when component mounts
+    fetchProductRecommendations(client.id)
+      .then((result) => {
+        if (!result.error) {
+          setProductRecommendations(result.recommendations || []);
+        }
+      })
+      .catch((err) => {
+        console.error('Error loading product recommendations on mount:', err);
+      });
   }, []);
 
   useEffect(() => {
@@ -1010,7 +1127,28 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
     
     console.log(`Rendering field: ${String(actualFieldKey)}, value:`, value);
 
-    if (field.includes('salary') || field.includes('balance') || field.includes('tax') || field.includes('received') || field.includes('assets') || field.includes('expenses') || field.includes('loans') || field.includes('insurance')) {
+    // Special handling for income tax and centrelink received fields to allow larger numbers
+    if (field.includes('tax') || field.includes('received')) {
+      const numValue = typeof value === 'number' ? value : 0;
+      return (
+        <Input
+          type="number"
+          min="0"
+          step="0.01"
+          max="99999999.99" // Allow up to 8 digits before decimal
+          value={numValue}
+          onChange={(e) => {
+            const numericValue = parseFloat(e.target.value) || 0;
+            setEditableClientData(prev => ({ ...prev, [actualFieldKey]: numericValue }));
+          }}
+          className="w-full px-1 py-0.5 border-input"
+          onBlur={(e) => {
+            const numericValue = parseFloat(e.target.value) || 0;
+            setEditableClientData(prev => ({ ...prev, [actualFieldKey]: numericValue }));
+          }}
+        />
+      );
+    } else if (field.includes('salary') || field.includes('balance') || field.includes('assets') || field.includes('expenses') || field.includes('loans') || field.includes('insurance')) {
       const numValue = typeof value === 'number' ? value : 0;
       return (
         <Input
@@ -1188,7 +1326,17 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
             </TableRow>
 
             <TableRow>
-              <TableCell className="font-medium">Total Lifestyle Assets</TableCell>
+              <TableCell className="font-medium flex items-center gap-2">
+                Total Lifestyle Assets
+                <button
+                  type="button"
+                  className="ml-2 p-1 rounded hover:bg-gray-100"
+                  aria-label="Add lifestyle assets"
+                  onClick={() => setShowLifestyleModal(true)}
+                >
+                  <Plus size={16} />
+                </button>
+              </TableCell>
               <TableCell colSpan={client.client2_name ? 2 : 1}>
                 {renderEditableCell('total_lifestyle_assets', null)}
               </TableCell>
@@ -1200,25 +1348,65 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="font-medium">Total Investment Assets</TableCell>
+              <TableCell className="font-medium flex items-center gap-2">
+                Total Investment Assets
+                <button
+                  type="button"
+                  className="ml-2 p-1 rounded hover:bg-gray-100"
+                  aria-label="Add investment assets"
+                  onClick={() => setShowInvestmentModal(true)}
+                >
+                  <Plus size={16} />
+                </button>
+              </TableCell>
               <TableCell colSpan={client.client2_name ? 2 : 1}>
                 {renderEditableCell('total_investment_assets', null)}
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="font-medium">Total Superannuation Assets</TableCell>
+              <TableCell className="font-medium flex items-center gap-2">
+                Total Superannuation Assets
+                <button
+                  type="button"
+                  className="ml-2 p-1 rounded hover:bg-gray-100"
+                  aria-label="Add superannuation assets"
+                  onClick={() => setShowSuperannuationModal(true)}
+                >
+                  <Plus size={16} />
+                </button>
+              </TableCell>
               <TableCell colSpan={client.client2_name ? 2 : 1}>
                 {renderEditableCell('total_superannuation_assets', null)}
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="font-medium">Total Client Loans</TableCell>
+              <TableCell className="font-medium flex items-center gap-2">
+                Total Client Loans
+                <button
+                  type="button"
+                  className="ml-2 p-1 rounded hover:bg-gray-100"
+                  aria-label="Add client loans"
+                  onClick={() => setShowClientLoansModal(true)}
+                >
+                  <Plus size={16} />
+                </button>
+              </TableCell>
               <TableCell colSpan={client.client2_name ? 2 : 1}>
                 {renderEditableCell('total_client_loans', null)}
               </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell className="font-medium">Total Client Insurance</TableCell>
+              <TableCell className="font-medium flex items-center gap-2">
+                Total Client Insurance
+                <button
+                  type="button"
+                  className="ml-2 p-1 rounded hover:bg-gray-100"
+                  aria-label="Add client insurance"
+                  onClick={() => setShowClientInsuranceModal(true)}
+                >
+                  <Plus size={16} />
+                </button>
+              </TableCell>
               <TableCell colSpan={client.client2_name ? 2 : 1}>
                 {renderEditableCell('total_client_insurance', null)}
               </TableCell>
@@ -1282,34 +1470,6 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
             </TableRow>
             <TableRow>
               <TableCell className="font-medium flex items-center gap-2">
-                Advisor Recommendations
-                <button
-                  type="button"
-                  className="ml-2 p-1 rounded hover:bg-gray-100"
-                  aria-label="Add advisor recommendations"
-                  onClick={() => setShowRecommendationsModal(true)}
-                >
-                  <Plus size={16} />
-                </button>
-              </TableCell>
-              <TableCell colSpan={client.client2_name ? 2 : 1}>
-                {recommendations.length > 0 ? (
-                  <div className="text-sm text-gray-600">
-                    {recommendations.length} recommendation{recommendations.length !== 1 ? 's' : ''}
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-400 italic">No recommendations</div>
-                )}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium">Other Advisor Comments</TableCell>
-              <TableCell colSpan={client.client2_name ? 2 : 1}>
-                {renderEditableCell('advisor_advice', null)}
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-medium flex items-center gap-2">
                 Goals and Objectives
                 <button
                   type="button"
@@ -1327,6 +1487,28 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
                   </div>
                 ) : (
                   <div className="text-sm text-gray-400 italic">No goals</div>
+                )}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium flex items-center gap-2">
+                Product Recommendations
+                <button
+                  type="button"
+                  className="ml-2 p-1 rounded hover:bg-gray-100"
+                  aria-label="Add product recommendations"
+                  onClick={() => setShowProductRecommendationsModal(true)}
+                >
+                  <Plus size={16} />
+                </button>
+              </TableCell>
+              <TableCell colSpan={client.client2_name ? 2 : 1}>
+                {productRecommendations.filter(r => r.product_name.trim() !== '').length > 0 ? (
+                  <div className="text-sm text-gray-600">
+                    {productRecommendations.filter(r => r.product_name.trim() !== '').length} product recommendation{productRecommendations.filter(r => r.product_name.trim() !== '').length !== 1 ? 's' : ''}
+                  </div>
+                ) : (
+                  <div className="text-sm text-gray-400 italic">No product recommendations</div>
                 )}
               </TableCell>
             </TableRow>
@@ -2234,6 +2416,115 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Product Recommendations Modal */}
+      <Dialog open={showProductRecommendationsModal} onOpenChange={setShowProductRecommendationsModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Product Recommendations</DialogTitle>
+            <DialogDescription>
+              Add up to eight product recommendations. Specify the product name, amount, and which client it's for.
+            </DialogDescription>
+          </DialogHeader>
+          {productRecommendationsLoading ? (
+            <div className="text-center text-gray-500 py-8">Loading...</div>
+          ) : (
+            <>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto p-2">
+                {productRecommendations.map((rec, idx) => (
+                  <div key={idx} className="p-4 border rounded-md bg-gray-50">
+                    <h4 className="font-medium mb-2">Product Recommendation {idx + 1}</h4>
+                    
+                    <label htmlFor={`product-name-${idx}`} className="font-medium text-sm mt-2">
+                      Product Name
+                    </label>
+                    <input
+                      id={`product-name-${idx}`}
+                      type="text"
+                      value={rec.product_name}
+                      onChange={e => {
+                        const updated = [...productRecommendations];
+                        updated[idx].product_name = e.target.value;
+                        setProductRecommendations(updated);
+                      }}
+                      className="w-full text-sm p-2 border rounded"
+                      placeholder="Enter product name"
+                    />
+                    
+                    <div className="grid grid-cols-2 gap-4 mt-2">
+                      <div className="flex flex-col">
+                        <label htmlFor={`product-amount-${idx}`} className="font-medium text-sm mb-1">
+                          Amount ($)
+                        </label>
+                        <input
+                          id={`product-amount-${idx}`}
+                          type="number"
+                          value={rec.amount || ''}
+                          onChange={e => {
+                            const updated = [...productRecommendations];
+                            updated[idx].amount = parseFloat(e.target.value) || 0;
+                            setProductRecommendations(updated);
+                          }}
+                          className="w-full text-sm p-2 border rounded"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      
+                      <div className="flex flex-col">
+                        <label htmlFor={`product-client-${idx}`} className="font-medium text-sm mb-1">
+                          For Client
+                        </label>
+                        <select
+                          id={`product-client-${idx}`}
+                          value={rec.client_allocation}
+                          onChange={e => {
+                            const updated = [...productRecommendations];
+                            updated[idx].client_allocation = e.target.value as 'Client 1' | 'Client 2' | 'Joint';
+                            setProductRecommendations(updated);
+                          }}
+                          className="w-full text-sm p-2 border rounded"
+                        >
+                          <option value="Client 1">Client 1</option>
+                          {client.client2_name && <option value="Client 2">Client 2</option>}
+                          <option value="Joint">Joint</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <button
+                  className="px-4 py-2 rounded border bg-gray-100 hover:bg-gray-200"
+                  onClick={() => setShowProductRecommendationsModal(false)}
+                  disabled={productRecommendationsLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={handleSaveProductRecommendations}
+                  disabled={productRecommendationsLoading}
+                >
+                  Save
+                </button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+      {/* Save Changes Button */}
+      {isDirty && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button 
+            onClick={handleSave}
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-4 py-2 rounded shadow-lg"
+          >
+            <Save size={16} />
+            Save Changes
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

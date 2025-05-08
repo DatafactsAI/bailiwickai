@@ -51,10 +51,20 @@ export async function fetchClientGoalsObjectives(clientId: string): Promise<{
 
 // Update goals and objectives for a client
 export async function updateClientGoalsObjectives(
-  clientId: string, 
   goals: ClientGoalObjective[]
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (!goals || goals.length === 0) {
+      return { success: false, error: 'No goals provided' };
+    }
+    
+    // Get the client ID from the first goal
+    const clientId = goals[0].client_id;
+    
+    if (!clientId) {
+      return { success: false, error: 'No client ID provided' };
+    }
+    
     // First delete all existing goals for this client
     const { error: deleteError } = await (supabase as any)
       .from('client_goals_objectives')
@@ -71,13 +81,14 @@ export async function updateClientGoalsObjectives(
     
     // Insert new goals if there are any
     if (goals.length > 0) {
+      // Prepare goals for insertion, ensuring client_id is a string
       const goalsToInsert = goals.map(goal => ({
-        client_id: clientId,
+        client_id: String(goal.client_id),
         category: goal.category,
         statement: goal.statement || '',
-        priority: goal.priority || '',
+        priority: goal.priority || 'Medium',
         amount: goal.amount || 0,
-        timeframe: goal.timeframe || '',
+        timeframe: goal.timeframe || 'Up to Five Years',
         updated_at: new Date().toISOString()
       }));
       

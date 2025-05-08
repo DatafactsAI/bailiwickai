@@ -15,6 +15,7 @@ import { fetchAdviceReasons, fetchClientSelectedReasons } from '@/integrations/s
 import { fetchAdviceCoverageAreas, fetchClientSelectedCoverageAreas } from '@/integrations/supabase/adviceCoverage';
 import { fetchAdvisorRecommendations } from '@/integrations/supabase/advisorRecommendations';
 import { fetchClientGoalsObjectives } from '@/integrations/supabase/clientGoalsObjectives';
+import { fetchProductRecommendations } from '@/integrations/supabase/productRecommendations';
 
 export function FinancialPlanWriter() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,8 +24,9 @@ export function FinancialPlanWriter() {
   const { toast } = useToast();
   const { data: clientsData, isLoading: isLoadingClients } = useClientData();
 
-  // Default webhook URL
-  const webhookUrl = 'https://hooks.zapier.com/hooks/catch/17752322/2wrf9gm/';
+  // Zapier webhook URLs
+  const primaryWebhookUrl = 'https://hooks.zapier.com/hooks/catch/17752322/2wrf9gm/';
+  const secondaryWebhookUrl = 'https://hooks.zapier.com/hooks/catch/17752322/2wxnady/';
 
   // Set up real-time subscription
   useClientDataSubscription();
@@ -58,7 +60,8 @@ export function FinancialPlanWriter() {
         adviceCoverageAreasResult,
         clientSelectedCoverageAreasResult,
         advisorRecommendationsResult,
-        goalsObjectivesResult
+        goalsObjectivesResult,
+        productRecommendationsResult
       ] = await Promise.all([
         fetchLifestyleAssets(selectedClientId),
         fetchInvestmentAssets(selectedClientId),
@@ -70,7 +73,8 @@ export function FinancialPlanWriter() {
         fetchAdviceCoverageAreas(),
         fetchClientSelectedCoverageAreas(selectedClientId),
         fetchAdvisorRecommendations(selectedClientId),
-        fetchClientGoalsObjectives(selectedClientId)
+        fetchClientGoalsObjectives(selectedClientId),
+        fetchProductRecommendations(selectedClientId)
       ]);
 
       // Process reasons for seeking advice with statements
@@ -151,13 +155,15 @@ export function FinancialPlanWriter() {
         advisorInput: {
           recommendations: advisorRecommendationsResult.recommendations || [],
           generalAdvice: selectedClient.advisor_advice || "",
+          productRecommendations: productRecommendationsResult.recommendations || []
         },
         goalsAndObjectives: goalsObjectivesResult.goals || []
       };
 
-      console.log("Sending comprehensive client data to Zapier webhook");
+      console.log("Sending comprehensive client data to Zapier webhooks");
       
-      await fetch(webhookUrl, {
+      // Send to primary webhook
+      const primaryResponse = fetch(primaryWebhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -165,10 +171,23 @@ export function FinancialPlanWriter() {
         mode: "no-cors",
         body: JSON.stringify(aiReadyPayload),
       });
+      
+      // Send to secondary webhook
+      const secondaryResponse = fetch(secondaryWebhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        mode: "no-cors",
+        body: JSON.stringify(aiReadyPayload),
+      });
+      
+      // Wait for both requests to complete
+      await Promise.all([primaryResponse, secondaryResponse]);
 
       toast({
         title: "Financial Plan Request Sent",
-        description: "Comprehensive client data has been sent to Zapier for AI processing. Please check your Zap's history.",
+        description: "Comprehensive client data has been sent to both Zapier webhooks for AI processing. Please check your Zaps' history.",
       });
       setIsOpen(false);
     } catch (error) {
