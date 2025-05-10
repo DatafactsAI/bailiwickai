@@ -63,7 +63,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
     { name: '', value: '', owner: 'Client 1', asset_type: 'Shares' },
   ]);
   const [superannuationAssets, setSuperannuationAssets] = useState([
-    { name: '', value: '', owner: 'Client 1', fund_type: 'Industry' },
+    { name: '', value: '', owner: 'Client 1', fund_type: 'Industry', current_return: '' },
   ]);
   // Client loans state: up to 8 loans
   const [clientLoans, setClientLoans] = useState([
@@ -135,7 +135,10 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   };
   const addSuperannuationRow = () => {
     if (superannuationAssets.length < 8) {
-      setSuperannuationAssets([...superannuationAssets, { name: '', value: '', owner: 'Client 1', fund_type: 'Industry' }]);
+      setSuperannuationAssets([
+        ...superannuationAssets,
+        { name: '', value: '', owner: 'Client 1', fund_type: 'Industry', current_return: '' }
+      ]);
     }
   };
   const addClientLoansRow = () => {
@@ -231,7 +234,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   }, [showInvestmentModal, client.id]);
 
   useEffect(() => {
-    if (showSuperannuationModal) {
+    const fetchSuperannuationAssetsData = () => {
       setSuperannuationLoading(true);
       fetchSuperannuationAssets(client.id)
         .then((result) => {
@@ -241,16 +244,25 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
               description: result.error,
               variant: 'destructive',
             });
-            setSuperannuationAssets([{ name: '', value: '', owner: 'Client 1', fund_type: 'Industry' }]);
+            setSuperannuationAssets([{ name: '', value: '', owner: 'Client 1', fund_type: 'Industry', current_return: '' }]);
           } else if (result.assets.length > 0) {
             setSuperannuationAssets(
-              result.assets.map(a => ({ name: a.name, value: a.value.toString(), owner: a.owner, fund_type: a.fund_type }))
+              result.assets.map(a => ({ 
+                name: a.name, 
+                value: a.value.toString(), 
+                owner: a.owner, 
+                fund_type: a.fund_type,
+                current_return: a.current_return ? a.current_return.toString() : ''
+              }))
             );
           } else {
-            setSuperannuationAssets([{ name: '', value: '', owner: 'Client 1', fund_type: 'Industry' }]);
+            setSuperannuationAssets([{ name: '', value: '', owner: 'Client 1', fund_type: 'Industry', current_return: '' }]);
           }
         })
         .finally(() => setSuperannuationLoading(false));
+    }
+    if (showSuperannuationModal) {
+      fetchSuperannuationAssetsData();
     }
   }, [showSuperannuationModal, client.id]);
 
@@ -589,6 +601,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
         value: parseFloat(a.value),
         owner: a.owner,
         fund_type: a.fund_type,
+        current_return: a.current_return ? parseFloat(a.current_return) : null,
         client_id: client.id
       })));
       if (!upsertResult.success) {
@@ -1736,102 +1749,125 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
           {superannuationLoading ? (
             <div className="text-center text-gray-500 py-8">Loading...</div>
           ) : (
-            <>
-              <div className="space-y-4">
-                {superannuationAssets.map((asset, idx) => (
-                  <div key={idx} className="flex gap-2 items-center p-2 border rounded">
-                    <input
-                      type="text"
-                      placeholder="Asset name"
-                      className="border rounded px-2 py-1 flex-1"
-                      value={asset.name}
-                      onChange={e => {
-                        const updated = [...superannuationAssets];
-                        updated[idx].name = e.target.value;
-                        setSuperannuationAssets(updated);
-                      }}
-                    />
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      placeholder="Value"
-                      className="border rounded px-2 py-1 w-28"
-                      value={asset.value}
-                      onChange={e => {
-                        const updated = [...superannuationAssets];
-                        updated[idx].value = e.target.value;
-                        setSuperannuationAssets(updated);
-                      }}
-                    />
-                    <select
-                      className="border rounded px-2 py-1 w-28"
-                      value={asset.owner}
-                      onChange={e => {
-                        const updated = [...superannuationAssets];
-                        updated[idx].owner = e.target.value;
-                        setSuperannuationAssets(updated);
-                      }}
-                    >
-                      <option value="Client 1">Client 1</option>
-                      <option value="Client 2">Client 2</option>
-                      <option value="Joint">Joint</option>
-                    </select>
-                    <select
-                      className="border rounded px-2 py-1 w-32"
-                      value={asset.fund_type}
-                      onChange={e => {
-                        const updated = [...superannuationAssets];
-                        updated[idx].fund_type = e.target.value;
-                        setSuperannuationAssets(updated);
-                      }}
-                    >
-                      <option value="Industry">Industry</option>
-                      <option value="Retail">Retail</option>
-                      <option value="SMSF">SMSF</option>
-                    </select>
-                    {superannuationAssets.length > 1 && (
-                      <button
-                        type="button"
-                        className="ml-1 px-2 py-1 text-red-500 hover:text-red-700"
-                        aria-label="Remove asset"
-                        onClick={() => removeSuperannuationRow(idx)}
+            <div className="flex flex-col h-full">
+              <div className="overflow-y-auto max-h-[60vh] pr-2 mb-4">
+                <div className="space-y-4">
+                  {superannuationAssets.map((asset, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-2 items-center p-2 border rounded">
+                      <input
+                        type="text"
+                        placeholder="Asset name"
+                        className="border rounded px-2 py-1 col-span-3"
+                        value={asset.name}
+                        onChange={e => {
+                          const updated = [...superannuationAssets];
+                          updated[idx].name = e.target.value;
+                          setSuperannuationAssets(updated);
+                        }}
+                      />
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        placeholder="Value"
+                        className="border rounded px-2 py-1 col-span-2"
+                        value={asset.value}
+                        onChange={e => {
+                          const updated = [...superannuationAssets];
+                          updated[idx].value = e.target.value;
+                          setSuperannuationAssets(updated);
+                        }}
+                      />
+                      <div className="flex items-center gap-1 col-span-2">
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          max="100"
+                          placeholder="Return %"
+                          className="border rounded px-2 py-1 w-full"
+                          value={asset.current_return}
+                          onChange={e => {
+                            const updated = [...superannuationAssets];
+                            updated[idx].current_return = e.target.value;
+                            setSuperannuationAssets(updated);
+                          }}
+                          title="Current annual return percentage"
+                        />
+                        <span className="text-sm text-gray-500">%</span>
+                      </div>
+                      <select
+                        className="border rounded px-2 py-1 col-span-2"
+                        value={asset.owner}
+                        onChange={e => {
+                          const updated = [...superannuationAssets];
+                          updated[idx].owner = e.target.value;
+                          setSuperannuationAssets(updated);
+                        }}
                       >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {superannuationAssets.length < 8 && (
+                        <option value="Client 1">Client 1</option>
+                        <option value="Client 2">Client 2</option>
+                        <option value="Joint">Joint</option>
+                      </select>
+                      <select
+                        className="border rounded px-2 py-1 col-span-2"
+                        value={asset.fund_type}
+                        onChange={e => {
+                          const updated = [...superannuationAssets];
+                          updated[idx].fund_type = e.target.value;
+                          setSuperannuationAssets(updated);
+                        }}
+                      >
+                        <option value="Industry">Industry</option>
+                        <option value="Retail">Retail</option>
+                        <option value="SMSF">SMSF</option>
+                      </select>
+                      {superannuationAssets.length > 1 && (
+                        <button
+                          type="button"
+                          className="ml-1 px-2 py-1 text-red-500 hover:text-red-700 col-span-1"
+                          aria-label="Remove asset"
+                          onClick={() => removeSuperannuationRow(idx)}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  {superannuationAssets.length < 8 && (
+                    <button
+                      type="button"
+                      className="mt-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-800 border border-green-300"
+                      onClick={addSuperannuationRow}
+                    >
+                      + Add Asset
+                    </button>
+                  )}
+                </div>
+              </div>
+              
+              <div className="border-t pt-4 mt-auto">
+                <div className="font-semibold text-right mb-4">
+                  Total: ${superannuationSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+                <div className="flex justify-end gap-2">
                   <button
-                    type="button"
-                    className="mt-2 px-3 py-1 rounded bg-green-100 hover:bg-green-200 text-green-800 border border-green-300"
-                    onClick={addSuperannuationRow}
+                    className="px-4 py-2 rounded border bg-gray-100 hover:bg-gray-200"
+                    onClick={() => setShowSuperannuationModal(false)}
+                    disabled={superannuationLoading}
                   >
-                    + Add Asset
+                    Cancel
                   </button>
-                )}
+                  <button
+                    className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                    onClick={handleSaveSuperannuationAssets}
+                    disabled={superannuationLoading}
+                  >
+                    Save
+                  </button>
+                </div>
               </div>
-              <div className="mt-4 font-semibold text-right">
-                Total: ${superannuationSum.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </div>
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  className="px-4 py-2 rounded border bg-gray-100 hover:bg-gray-200"
-                  onClick={() => setShowSuperannuationModal(false)}
-                  disabled={superannuationLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-                  onClick={handleSaveSuperannuationAssets}
-                  disabled={superannuationLoading}
-                >
-                  Save
-                </button>
-              </div>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>

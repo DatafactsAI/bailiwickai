@@ -8,6 +8,7 @@ export type SuperannuationAsset = {
   value: number;
   owner: 'Client 1' | 'Client 2' | 'Joint';
   fund_type: string;
+  current_return?: number; // Added current return field
   created_at?: string;
 };
 
@@ -31,6 +32,7 @@ export async function fetchSuperannuationAssets(clientId: string): Promise<{ ass
         value: typeof item.value === 'string' ? parseFloat(item.value) : item.value,
         owner: item.owner,
         fund_type: item.fund_type,
+        current_return: typeof item.current_return === 'string' ? parseFloat(item.current_return) : item.current_return,
         created_at: item.created_at
       })),
     };
@@ -62,7 +64,8 @@ export async function upsertSuperannuationAssets(clientId: string, assets: Super
           name: a.name,
           value: a.value,
           owner: a.owner,
-          fund_type: a.fund_type
+          fund_type: a.fund_type,
+          current_return: a.current_return || null
         }));
       
       if (validAssets.length > 0) {
