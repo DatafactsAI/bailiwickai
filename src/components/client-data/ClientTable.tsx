@@ -966,24 +966,92 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   }, [client]);
 
   const handlePlaceInChat = async () => {
-    const clientDetails = `Client Financial Summary for ${client.client1_name}:
-- Date of Birth: ${new Date(client.client1_dob).toLocaleDateString()}
-- Gross Salary: ${formatCurrency(client.client1_gross_salary)}
-- Super Balance: ${formatCurrency(client.client1_super_balance)}
-- Health Status: ${client.client1_health || 'Not specified'}
-- Work Status: ${client.client1_work_status || 'Not specified'}
-- Income Tax: ${formatCurrency(client.client1_income_tax || 0)}
-- Centrelink Received: ${formatCurrency(client.client1_centrelink_received || 0)}
-${client.client2_name ? `\nClient 2 (${client.client2_name}) Information:
-- Date of Birth: ${client.client2_dob ? new Date(client.client2_dob).toLocaleDateString() : 'Not specified'}
-- Gross Salary: ${client.client2_gross_salary ? formatCurrency(client.client2_gross_salary) : 'Not specified'}
-- Super Balance: ${client.client2_super_balance ? formatCurrency(client.client2_super_balance) : 'Not specified'}
-- Health Status: ${client.client2_health || 'Not specified'}
-- Work Status: ${client.client2_work_status || 'Not specified'}
-- Income Tax: ${client.client2_income_tax ? formatCurrency(client.client2_income_tax) : 'Not specified'}
-- Centrelink Received: ${client.client2_centrelink_received ? formatCurrency(client.client2_centrelink_received) : 'Not specified'}` : ''}
+    console.log("Place Details in Chat function called at:", new Date().toLocaleTimeString());
+    
+    // SIMPLIFIED APPROACH: Skip all database fetches and use UI state data directly
+    // Use let instead of const for variables that might be reassigned later
+    let currentLifestyleAssets = lifestyleAssets.filter(asset => asset.name && asset.value);
+    let currentInvestmentAssets = investmentAssets.filter(asset => asset.name && asset.value);
+    let currentSuperannuationAssets = superannuationAssets.filter(asset => asset.name && asset.value);
+    let currentClientLoans = clientLoans.filter(loan => loan.name && loan.value);
+    let currentClientInsurance = clientInsurance.filter(insurance => insurance.name && insurance.value);
+    
+    // For advice reasons, coverage areas, etc., use the state data directly
+    let currentSelectedReasons = selectedReasonIds
+      .map(id => {
+        const reason = adviceReasons.find(r => r.id === id);
+        return reason ? {
+          ...reason,
+          statement: reasonStatements[id] || ''
+        } : null;
+      })
+      .filter(Boolean);
+      
+    let currentSelectedCoverageAreas = selectedCoverageAreaIds
+      .map(id => {
+        const area = adviceCoverageAreas.find(a => a.id === id);
+        return area ? {
+          ...area,
+          statement: coverageAreaStatements[id] || ''
+        } : null;
+      })
+      .filter(Boolean);
+      
+    let currentRecommendations = recommendations.filter(rec => rec.recommendation_text?.trim());
+    let currentProductRecommendations = productRecommendations.filter(rec => rec.product_name?.trim());
+    let currentGoalsObjectives = [];
+    
+    // Skip all database fetches to avoid errors
+    try {
+      // Log what we're using from the UI state
+      console.log("Using UI state data directly:");
+      console.log("- Lifestyle assets:", currentLifestyleAssets.length);
+      console.log("- Investment assets:", currentInvestmentAssets.length);
+      console.log("- Superannuation assets:", currentSuperannuationAssets.length);
+      console.log("- Client loans:", currentClientLoans.length);
+      console.log("- Client insurance:", currentClientInsurance.length);
+      console.log("- Selected reasons:", currentSelectedReasons.length);
+      console.log("- Selected coverage areas:", currentSelectedCoverageAreas.length);
+      console.log("- Recommendations:", currentRecommendations.length);
+      console.log("- Product recommendations:", currentProductRecommendations.length);
+      
+    } catch (error) {
+      console.error("Error fetching client data:", error);
+      // Continue with what we have in state
+      currentLifestyleAssets = lifestyleAssets;
+      currentInvestmentAssets = investmentAssets;
+      currentSuperannuationAssets = superannuationAssets;
+      currentClientLoans = clientLoans;
+      currentClientInsurance = clientInsurance;
+    }
 
-Household Financial Summary:
+    // Format client details with all available information
+    const clientDetails = `# Client Financial Summary for ${client.client1_name}
+
+## Personal Information
+- **Client 1 (${client.client1_name})**
+  - Date of Birth: ${new Date(client.client1_dob).toLocaleDateString()}
+  - Health Status: ${client.client1_health || 'Not specified'}
+  - Work Status: ${client.client1_work_status || 'Not specified'}
+
+- **Income Details (Client 1)**
+  - Gross Salary: ${formatCurrency(client.client1_gross_salary)}
+  - Income Tax: ${formatCurrency(client.client1_income_tax || 0)}
+  - Centrelink Received: ${formatCurrency(client.client1_centrelink_received || 0)}
+  - Super Balance: ${formatCurrency(client.client1_super_balance)}
+
+${client.client2_name ? `- **Client 2 (${client.client2_name})**
+  - Date of Birth: ${client.client2_dob ? new Date(client.client2_dob).toLocaleDateString() : 'Not specified'}
+  - Health Status: ${client.client2_health || 'Not specified'}
+  - Work Status: ${client.client2_work_status || 'Not specified'}
+
+- **Income Details (Client 2)**
+  - Gross Salary: ${client.client2_gross_salary ? formatCurrency(client.client2_gross_salary) : 'Not specified'}
+  - Income Tax: ${client.client2_income_tax ? formatCurrency(client.client2_income_tax) : 'Not specified'}
+  - Centrelink Received: ${client.client2_centrelink_received ? formatCurrency(client.client2_centrelink_received) : 'Not specified'}
+  - Super Balance: ${client.client2_super_balance ? formatCurrency(client.client2_super_balance) : 'Not specified'}` : ''}
+
+## Household Financial Summary
 - Total Lifestyle Assets: ${formatCurrency(client.total_lifestyle_assets || 0)}
 - Total Living Expenses: ${formatCurrency(client.total_living_expenses || 0)}
 - Total Investment Assets: ${formatCurrency(client.total_investment_assets || 0)}
@@ -991,37 +1059,129 @@ Household Financial Summary:
 - Total Client Loans: ${formatCurrency(client.total_client_loans || 0)}
 - Total Client Insurance: ${formatCurrency(client.total_client_insurance || 0)}
 
-Consultation Details:
+${currentLifestyleAssets && currentLifestyleAssets.length > 0 ? `## Lifestyle Assets
+${currentLifestyleAssets.map(asset => {
+        // For UI state data, use a simpler approach
+        // Convert to number if it's a string with a currency symbol
+        let valueStr = String(asset.value || '0');
+        let value = valueStr.startsWith('$') ? 
+                    parseFloat(valueStr.replace(/[^0-9.-]+/g, '')) : 
+                    parseFloat(valueStr);
+        
+        // Use 0 if parsing fails
+        if (isNaN(value)) value = 0;
+        
+        console.log(`Processing lifestyle asset: ${asset.name}, value: ${asset.value}, parsed: ${value}`);
+        return `- ${asset.name}: ${formatCurrency(value)} (Owner: ${asset.owner})`;
+      }).join('\n')}` : ''}
+
+${currentInvestmentAssets && currentInvestmentAssets.length > 0 ? `## Investment Assets
+${currentInvestmentAssets.map(asset => {
+        // For UI state data, use a simpler approach
+        let valueStr = String(asset.value || '0');
+        let value = valueStr.startsWith('$') ? 
+                    parseFloat(valueStr.replace(/[^0-9.-]+/g, '')) : 
+                    parseFloat(valueStr);
+        if (isNaN(value)) value = 0;
+        console.log(`Processing investment asset: ${asset.name}, value: ${asset.value}, parsed: ${value}`);
+        return `- ${asset.name}: ${formatCurrency(value)} (Type: ${asset.asset_type}, Owner: ${asset.owner})`;
+      }).join('\n')}` : ''}
+
+${currentSuperannuationAssets && currentSuperannuationAssets.length > 0 ? `## Superannuation Assets
+${currentSuperannuationAssets.map(asset => {
+        // For UI state data, use a simpler approach
+        let valueStr = String(asset.value || '0');
+        let value = valueStr.startsWith('$') ? 
+                    parseFloat(valueStr.replace(/[^0-9.-]+/g, '')) : 
+                    parseFloat(valueStr);
+        if (isNaN(value)) value = 0;
+        console.log(`Processing super asset: ${asset.name}, value: ${asset.value}, parsed: ${value}`);
+        return `- ${asset.name}: ${formatCurrency(value)} (Type: ${asset.fund_type}, Owner: ${asset.owner}${asset.current_return ? `, Current Return: ${asset.current_return}%` : ''})`;
+      }).join('\n')}` : ''}
+
+${currentClientLoans && currentClientLoans.length > 0 ? `## Client Loans
+${currentClientLoans.map(loan => {
+        // For UI state data, use a simpler approach
+        let valueStr = String(loan.value || '0');
+        let value = valueStr.startsWith('$') ? 
+                    parseFloat(valueStr.replace(/[^0-9.-]+/g, '')) : 
+                    parseFloat(valueStr);
+        if (isNaN(value)) value = 0;
+        console.log(`Processing loan: ${loan.name}, value: ${loan.value}, parsed: ${value}`);
+        return `- ${loan.name}: ${formatCurrency(value)} (Type: ${loan.loan_type}, Owner: ${loan.owner})`;
+      }).join('\n')}` : ''}
+
+${currentClientInsurance && currentClientInsurance.length > 0 ? `## Client Insurance
+${currentClientInsurance.map(insurance => {
+        // For UI state data, use a simpler approach
+        let valueStr = String(insurance.value || '0');
+        let value = valueStr.startsWith('$') ? 
+                    parseFloat(valueStr.replace(/[^0-9.-]+/g, '')) : 
+                    parseFloat(valueStr);
+        if (isNaN(value)) value = 0;
+        console.log(`Processing insurance: ${insurance.name}, value: ${insurance.value}, parsed: ${value}`);
+        return `- ${insurance.name}: ${formatCurrency(value)} (Type: ${insurance.insurance_type}, Owner: ${insurance.owner})`;
+      }).join('\n')}` : ''}
+
+${currentSelectedReasons && currentSelectedReasons.length > 0 ? `## Advice Reasons
+${currentSelectedReasons.map(reason => `- ${reason.reason_text}${reason.statement ? `\n  Statement: ${reason.statement}` : ''}`).join('\n')}` : ''}
+
+${currentSelectedCoverageAreas && currentSelectedCoverageAreas.length > 0 ? `## Advice Coverage Areas
+${currentSelectedCoverageAreas.map(area => `- ${area.coverage_text}${area.statement ? `\n  Statement: ${area.statement}` : ''}`).join('\n')}` : ''}
+
+${currentRecommendations && currentRecommendations.length > 0 ? `## Advisor Recommendations
+${currentRecommendations.filter(rec => rec.recommendation_text && rec.recommendation_text.trim()).map((rec, index) => `${index + 1}. ${rec.recommendation_text}`).join('\n')}` : ''}
+
+${currentProductRecommendations && currentProductRecommendations.length > 0 ? `## Product Recommendations
+${currentProductRecommendations.map(rec => `- ${rec.product_name || rec.name}: ${rec.description || 'No description provided'}`).join('\n')}` : ''}
+
+${currentGoalsObjectives && currentGoalsObjectives.length > 0 ? `## Goals and Objectives
+${currentGoalsObjectives.map(goal => `- ${goal.goal_text || goal.text}${goal.timeframe ? ` (Timeframe: ${goal.timeframe})` : ''}`).join('\n')}` : ''}
+
+## Consultation Details
 - Date: ${new Date(client.consultation_date).toLocaleDateString()}
 - Advisor: ${client.advisor_name}
 ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
 
     try {
-      const { error } = await supabase
-        .from('messages')
-        .insert([
-          { 
-            content: clientDetails, 
-            type: 'received',
-            metadata: { clientId: client.id } 
-          }
-        ]);
+      console.log("Inserting message into chat at:", new Date().toLocaleTimeString());
+      
+      // Import the storeMessage function from supabaseUtils
+      const { storeMessage } = await import('@/utils/supabaseUtils');
+      
+      // Use the storeMessage utility function instead of direct insertion
+      const { error } = await storeMessage(
+        clientDetails,
+        'received',
+        { 
+          clientId: client.id,
+          client1_gross_salary: client.client1_gross_salary,
+          client1_super_balance: client.client1_super_balance,
+          client2_gross_salary: client.client2_gross_salary,
+          client2_super_balance: client.client2_super_balance
+        }
+      );
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase insert error:", error);
+        throw error;
+      }
 
+      console.log("Message successfully inserted into chat");
       toast({
         title: "Client Details Added",
         description: "Complete client details have been added to the chat.",
       });
 
       if (onPlaceInChat) {
+        console.log("Calling onPlaceInChat callback");
         onPlaceInChat();
       }
     } catch (error) {
       console.error("Error adding client details to chat:", error);
       toast({
         title: "Error",
-        description: "Failed to add client details to chat.",
+        description: "Failed to add client details to chat: " + (error instanceof Error ? error.message : String(error)),
         variant: "destructive",
       });
     }
@@ -1256,7 +1416,10 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
           </Button>
         )}
         <Button
-          onClick={handlePlaceInChat}
+          onClick={() => {
+            console.log('Place Details in Chat button clicked');
+            handlePlaceInChat();
+          }}
           variant="blue"
           className="btn-pulse"
         >
