@@ -30,8 +30,21 @@ export async function fetchAdvisorRecommendations(clientId: string): Promise<{
       };
     }
 
+    // Ensure we always have 8 recommendation slots
+    const existingRecommendations = data || [];
+    const recommendations: AdvisorRecommendation[] = [...existingRecommendations];
+    
+    // Fill up to 8 slots with empty recommendations
+    while (recommendations.length < 8) {
+      recommendations.push({
+        client_id: clientId,
+        recommendation_text: '',
+        position: recommendations.length
+      });
+    }
+
     return {
-      recommendations: data || [],
+      recommendations
     };
   } catch (error: any) {
     console.error('Error fetching advisor recommendations:', error);
@@ -42,12 +55,24 @@ export async function fetchAdvisorRecommendations(clientId: string): Promise<{
   }
 }
 
-// Update recommendations for a client
-export async function updateAdvisorRecommendations(
-  clientId: string, 
-  recommendations: { recommendation_text: string }[]
+// Save recommendations for a client
+export async function saveAdvisorRecommendations(
+  recommendations: AdvisorRecommendation[]
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Ensure we have a client ID even if all recommendations are empty
+    const clientId = recommendations[0]?.client_id;
+    
+    if (!clientId) {
+      console.error('No valid client ID found in recommendations');
+      return { success: false, error: 'No valid client ID found' };
+    }
+    
+    // Filter out empty recommendations
+    const validRecommendations = recommendations.filter(
+      rec => rec.recommendation_text.trim() !== ''
+    );
+
     // First delete all existing recommendations for this client
     const { error: deleteError } = await (supabase as any)
       .from('advisor_recommendations')
@@ -58,35 +83,29 @@ export async function updateAdvisorRecommendations(
       console.error('Error deleting old advisor recommendations:', deleteError);
       return { success: false, error: deleteError.message || 'Error deleting old advisor recommendations' };
     }
-    
-    // Insert new recommendations if there are any
-    if (recommendations.length > 0) {
-      const recommendationsToInsert = recommendations
-        .filter(rec => rec.recommendation_text.trim()) // Only insert non-empty recommendations
-        .map((rec, index) => ({
-          client_id: clientId,
-          recommendation_text: rec.recommendation_text.trim(),
-          position: index,
-          updated_at: new Date().toISOString()
-        }));
-      
-      if (recommendationsToInsert.length === 0) {
-        return { success: true }; // No recommendations to insert
-      }
-      
+
+    // Only insert valid recommendations
+    if (validRecommendations.length > 0) {
+      // Add positions and timestamps to each recommendation
+      const recommendationsWithPositions = validRecommendations.map((rec, index) => ({
+        ...rec,
+        position: index,
+        updated_at: new Date().toISOString()
+      }));
+
       const { error: insertError } = await (supabase as any)
         .from('advisor_recommendations')
-        .insert(recommendationsToInsert);
-      
+        .insert(recommendationsWithPositions);
+
       if (insertError) {
         console.error('Error inserting advisor recommendations:', insertError);
         return { success: false, error: insertError.message || 'Error inserting advisor recommendations' };
       }
     }
-    
+
     return { success: true };
   } catch (error: any) {
-    console.error('Error updating advisor recommendations:', error);
-    return { success: false, error: error.message || 'Unknown error updating advisor recommendations' };
+    console.error('Error saving advisor recommendations:', error);
+    return { success: false, error: error.message || 'Unknown error saving advisor recommendations' };
   }
 }

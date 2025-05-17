@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ClientData } from './types';
 import { formatCurrency } from './utils';
-import { MessageSquare, Save, Plus } from "lucide-react"; 
+import { MessageSquare, Save, Plus, Search } from "lucide-react"; 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -22,7 +22,7 @@ import { fetchClientLoans, upsertClientLoans, updateTotalClientLoans } from '@/i
 import { fetchClientInsurance, upsertClientInsurance, updateTotalClientInsurance } from '@/integrations/supabase/clientInsurance';
 import { fetchAdviceReasons, fetchClientSelectedReasons, updateClientSelectedReasons } from '@/integrations/supabase/adviceReasons';
 import { fetchAdviceCoverageAreas, fetchClientSelectedCoverageAreas, updateClientSelectedCoverageAreas } from '@/integrations/supabase/adviceCoverage';
-import { fetchAdvisorRecommendations, updateAdvisorRecommendations } from '@/integrations/supabase/advisorRecommendations';
+import { fetchAdvisorRecommendations, saveAdvisorRecommendations, AdvisorRecommendation } from '@/integrations/supabase/advisorRecommendations';
 import { fetchProductRecommendations, saveProductRecommendations, ProductRecommendation } from '@/integrations/supabase/productRecommendations';
 import { fetchClientGoalsObjectives, updateClientGoalsObjectives, ClientGoalObjective, GoalCategory, GoalPriority, GoalTimeframe } from '@/integrations/supabase/clientGoalsObjectives';
 
@@ -53,6 +53,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   const [showAdviceCoverageModal, setShowAdviceCoverageModal] = useState(false);
   const [showRecommendationsModal, setShowRecommendationsModal] = useState(false);
   const [showGoalsObjectivesModal, setShowGoalsObjectivesModal] = useState(false);
+  const [showAdvisorRecommendationsModal, setShowAdvisorRecommendationsModal] = useState(false);
   const [showProductRecommendationsModal, setShowProductRecommendationsModal] = useState(false);
   // Asset state: up to 8 assets
   const [lifestyleAssets, setLifestyleAssets] = useState([
@@ -82,6 +83,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   const [adviceCoverageLoading, setAdviceCoverageLoading] = useState(false);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
   const [goalsObjectivesLoading, setGoalsObjectivesLoading] = useState(false);
+  const [advisorRecommendationsLoading, setAdvisorRecommendationsLoading] = useState(false);
   const [productRecommendationsLoading, setProductRecommendationsLoading] = useState(false);
   const [adviceReasons, setAdviceReasons] = useState<Array<{ id: string; reason_text: string; category: string }>>([]);
   const [selectedReasonIds, setSelectedReasonIds] = useState<string[]>([]);
@@ -99,7 +101,9 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
     { recommendation_text: '' },
     { recommendation_text: '' }
   ]);
-  const [productRecommendations, setProductRecommendations] = useState<ProductRecommendation[]>([  
+  const [advisorRecommendations, setAdvisorRecommendations] = useState<AdvisorRecommendation[]>([]);
+  
+  const [productRecommendations, setProductRecommendations] = useState<ProductRecommendation[]>([ 
     { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
     { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
     { client_id: client.id, product_name: '', amount: 0, client_allocation: 'Client 1' },
@@ -462,6 +466,35 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
     }
   }, [showGoalsObjectivesModal, client.id]);
   
+  // Fetch advisor recommendations when modal is opened
+  useEffect(() => {
+    if (showAdvisorRecommendationsModal) {
+      setAdvisorRecommendationsLoading(true);
+      fetchAdvisorRecommendations(client.id)
+        .then((result) => {
+          if (result.recommendations.length > 0) {
+            setAdvisorRecommendations(result.recommendations);
+          } else {
+            // Initialize with empty recommendations
+            setAdvisorRecommendations(Array(8).fill(0).map((_, index) => ({
+              client_id: client.id,
+              recommendation_text: '',
+              position: index
+            })));
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching advisor recommendations:', error);
+          toast({
+            title: 'Error fetching advisor recommendations',
+            description: 'Failed to load advisor recommendations',
+            variant: 'destructive',
+          });
+        })
+        .finally(() => setAdvisorRecommendationsLoading(false));
+    }
+  }, [showAdvisorRecommendationsModal, client.id, toast]);
+
   useEffect(() => {
     if (showProductRecommendationsModal) {
       setProductRecommendationsLoading(true);
@@ -504,7 +537,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
       const upsertResult = await upsertLifestyleAssets(client.id, filtered.map(a => ({
         name: a.name.trim(),
         value: parseFloat(a.value),
-        owner: a.owner,
+        owner: a.owner as "Client 1" | "Client 2" | "Joint",
         client_id: client.id
       })));
       if (!upsertResult.success) {
@@ -551,7 +584,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
       const upsertResult = await upsertInvestmentAssets(client.id, filtered.map(a => ({
         name: a.name.trim(),
         value: parseFloat(a.value),
-        owner: a.owner,
+        owner: a.owner as "Client 1" | "Client 2" | "Joint",
         asset_type: a.asset_type,
         client_id: client.id
       })));
@@ -599,7 +632,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
       const upsertResult = await upsertSuperannuationAssets(client.id, filtered.map(a => ({
         name: a.name.trim(),
         value: parseFloat(a.value),
-        owner: a.owner,
+        owner: a.owner as "Client 1" | "Client 2" | "Joint",
         fund_type: a.fund_type,
         current_return: a.current_return ? parseFloat(a.current_return) : null,
         client_id: client.id
@@ -648,7 +681,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
       const upsertResult = await upsertClientLoans(client.id, filtered.map(a => ({
         name: a.name.trim(),
         value: parseFloat(a.value),
-        owner: a.owner,
+        owner: a.owner as "Client 1" | "Client 2" | "Joint",
         loan_type: a.loan_type,
         client_id: client.id
       })));
@@ -696,7 +729,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
       const upsertResult = await upsertClientInsurance(client.id, filtered.map(a => ({
         name: a.name.trim(),
         value: parseFloat(a.value),
-        owner: a.owner,
+        owner: a.owner as "Client 1" | "Client 2" | "Joint",
         insurance_type: a.insurance_type,
         client_id: client.id
       })));
@@ -813,7 +846,14 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   const handleSaveRecommendations = async () => {
     setRecommendationsLoading(true);
     try {
-      const updateResult = await updateAdvisorRecommendations(client.id, recommendations);
+      // Convert recommendations to AdvisorRecommendation format with required properties
+      const recommendationsToSave = recommendations.map((rec, index) => ({
+        client_id: client.id,
+        recommendation_text: rec.recommendation_text,
+        position: index
+      }));
+      
+      const updateResult = await saveAdvisorRecommendations(recommendationsToSave);
       
       if (!updateResult.success) {
         toast({
@@ -878,45 +918,379 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
         description: 'Failed to save goals and objectives',
         variant: 'destructive',
       });
-    } finally {
       setGoalsObjectivesLoading(false);
+    }
+  };
+
+  const handleSaveAdvisorRecommendations = async () => {
+    setAdvisorRecommendationsLoading(true);
+    try {
+      // Add client ID to each recommendation
+      const recommendationsWithClientId = advisorRecommendations.map(rec => ({
+        ...rec,
+        client_id: client.id
+      }));
+      
+      const result = await saveAdvisorRecommendations(recommendationsWithClientId);
+      
+      if (result.success) {
+        toast({
+          title: "Success",
+          description: "Advisor recommendations saved successfully.",
+        });
+        
+        if (onDataSaved) {
+          onDataSaved();
+        }
+        
+        setShowAdvisorRecommendationsModal(false);
+      } else {
+        toast({
+          title: "Error",
+          description: result.error || "Failed to save advisor recommendations.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving advisor recommendations:", error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while saving advisor recommendations.",
+        variant: "destructive",
+      });
+    } finally {
+      setAdvisorRecommendationsLoading(false);
     }
   };
 
   const handleSaveProductRecommendations = async () => {
     setProductRecommendationsLoading(true);
     try {
-      // Ensure all recommendations have the client ID
+      // Add client ID to each recommendation
       const recommendationsWithClientId = productRecommendations.map(rec => ({
         ...rec,
         client_id: client.id
       }));
-
+      
       const result = await saveProductRecommendations(recommendationsWithClientId);
-      if (!result.success) {
+      
+      if (result.success) {
         toast({
-          title: 'Error',
-          description: result.error || 'Failed to save product recommendations',
-          variant: 'destructive',
+          title: "Success",
+          description: "Product recommendations saved successfully.",
         });
+        
+        if (onDataSaved) {
+          onDataSaved();
+        }
+        
+        setShowProductRecommendationsModal(false);
       } else {
         toast({
-          title: 'Success',
-          description: 'Product recommendations saved successfully',
+          title: "Error",
+          description: result.error || "Failed to save product recommendations.",
+          variant: "destructive",
         });
-        setShowProductRecommendationsModal(false);
-        if (onDataSaved) onDataSaved();
       }
     } catch (error) {
-      console.error('Error saving product recommendations:', error);
+      console.error("Error saving product recommendations:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to save product recommendations',
-        variant: 'destructive',
+        title: "Error",
+        description: "An unexpected error occurred while saving product recommendations.",
+        variant: "destructive",
       });
     } finally {
       setProductRecommendationsLoading(false);
     }
+  };
+
+  // Function to analyze advisor comments and extract recommendations
+  const analyzeAdvisorComments = async () => {
+    try {
+      const advisorAdvice = client.advisor_advice || '';
+      if (!advisorAdvice.trim()) {
+        toast({
+          title: 'No advisor comments',
+          description: 'There are no advisor comments to analyze.',
+          variant: 'default',
+        });
+        return;
+      }
+
+      // Set loading states
+      setAdvisorRecommendationsLoading(true);
+      setProductRecommendationsLoading(true);
+      
+      // Extract advisor recommendations
+      const advisorRecsExtracted = extractAdvisorRecommendations(advisorAdvice);
+      // Extract product recommendations
+      const productRecsExtracted = extractProductRecommendations(advisorAdvice);
+      
+      let updatesFound = false;
+      
+      // Add new advisor recommendations if any were found
+      if (advisorRecsExtracted.length > 0) {
+        try {
+          // Fetch current recommendations first
+          const currentRecsResult = await fetchAdvisorRecommendations(client.id);
+          let currentRecs = currentRecsResult.recommendations || [];
+          
+          // Filter out empty recommendations from current list
+          const validCurrentRecs = currentRecs.filter(rec => rec.recommendation_text.trim() !== '');
+          
+          // Create new recommendation objects for extracted recommendations
+          const newRecommendations = advisorRecsExtracted.map(text => ({
+            client_id: client.id,
+            recommendation_text: text,
+            position: 0 // Will be updated before saving
+          }));
+          
+          // Add only new recommendations that don't already exist
+          const combinedRecs = [...validCurrentRecs];
+          for (const newRec of newRecommendations) {
+            if (!combinedRecs.some(rec => {
+              return rec.recommendation_text.trim().toLowerCase() === newRec.recommendation_text.trim().toLowerCase();
+            })) {
+              combinedRecs.push(newRec);
+            }
+          }
+          
+          // Ensure we don't exceed 8 recommendations
+          const finalRecs = combinedRecs.slice(0, 8);
+          
+          // Update positions
+          finalRecs.forEach((rec, index) => {
+            rec.position = index;
+          });
+          
+          // Fill up to 8 slots if needed
+          while (finalRecs.length < 8) {
+            finalRecs.push({
+              client_id: client.id,
+              recommendation_text: '',
+              position: finalRecs.length
+            });
+          }
+          
+          console.log('Saving advisor recommendations:', finalRecs);
+          
+          // Save to Supabase
+          const saveResult = await saveAdvisorRecommendations(finalRecs);
+          
+          if (saveResult.success) {
+            setAdvisorRecommendations(finalRecs);
+            updatesFound = true;
+          } else {
+            console.error('Failed to save advisor recommendations:', saveResult.error);
+            toast({
+              title: 'Error',
+              description: saveResult.error || 'Failed to save advisor recommendations.',
+              variant: 'destructive',
+            });
+          }
+        } catch (err) {
+          console.error('Error processing advisor recommendations:', err);
+          toast({
+            title: 'Error',
+            description: 'Error processing advisor recommendations.',
+            variant: 'destructive',
+          });
+        }
+      }
+      
+      // Add new product recommendations if any were found
+      if (productRecsExtracted.length > 0) {
+        try {
+          // Fetch current recommendations first
+          const currentRecsResult = await fetchProductRecommendations(client.id);
+          let currentRecs = currentRecsResult.recommendations || [];
+          
+          // Filter out empty recommendations
+          const validCurrentRecs = currentRecs.filter(rec => rec.product_name.trim() !== '');
+          
+          // Create new recommendation objects
+          const newRecommendations = productRecsExtracted.map(product => ({
+            client_id: client.id,
+            product_name: product.name + (product.description ? `: ${product.description}` : ''),
+            amount: 0, // Default amount
+            client_allocation: 'Joint' as 'Client 1' | 'Client 2' | 'Joint' // Default allocation with type assertion
+          }));
+          
+          // Add only new recommendations that don't already exist
+          const combinedRecs = [...validCurrentRecs];
+          for (const newRec of newRecommendations) {
+            if (!combinedRecs.some(rec => {
+              return rec.product_name.trim().toLowerCase() === newRec.product_name.trim().toLowerCase();
+            })) {
+              combinedRecs.push(newRec);
+            }
+          }
+          
+          // Ensure we don't exceed 8 recommendations
+          const finalRecs = combinedRecs.slice(0, 8);
+          
+          // Fill up to 8 slots if needed
+          while (finalRecs.length < 8) {
+            finalRecs.push({
+              client_id: client.id,
+              product_name: '',
+              amount: 0,
+              client_allocation: 'Joint' as 'Client 1' | 'Client 2' | 'Joint'
+            });
+          }
+          
+          console.log('Saving product recommendations:', finalRecs);
+          
+          // Save to Supabase
+          const saveResult = await saveProductRecommendations(finalRecs);
+          
+          if (saveResult.success) {
+            setProductRecommendations(finalRecs);
+            updatesFound = true;
+          } else {
+            console.error('Failed to save product recommendations:', saveResult.error);
+            toast({
+              title: 'Error',
+              description: saveResult.error || 'Failed to save product recommendations.',
+              variant: 'destructive',
+            });
+          }
+        } catch (err) {
+          console.error('Error processing product recommendations:', err);
+          toast({
+            title: 'Error',
+            description: 'Error processing product recommendations.',
+            variant: 'destructive',
+          });
+        }
+      }
+      
+      // Show appropriate toast message
+      if (updatesFound) {
+        toast({
+          title: 'Recommendations updated',
+          description: `Found ${advisorRecsExtracted.length} advisor recommendations and ${productRecsExtracted.length} product recommendations in the comments.`,
+        });
+      } else if (advisorRecsExtracted.length === 0 && productRecsExtracted.length === 0) {
+        toast({
+          title: 'No recommendations found',
+          description: 'No specific recommendations were identified in the advisor comments.',
+          variant: 'default',
+        });
+      }
+      
+    } catch (error) {
+      console.error('Error analyzing advisor comments:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to analyze advisor comments.',
+        variant: 'destructive',
+      });
+    } finally {
+      setAdvisorRecommendationsLoading(false);
+      setProductRecommendationsLoading(false);
+    }
+  };
+
+  // Helper function to extract advisor recommendations from text
+  const extractAdvisorRecommendations = (text: string): string[] => {
+    const recommendations: string[] = [];
+    
+    // Look for specific sections that might contain advisor recommendations
+    const specificRecSection = text.match(/(?:Specific Recommendations|Recommendations|Advisor Recommendations)[\s\S]*?(?=\n\n\S|$)/i);
+    if (specificRecSection) {
+      // Extract bullet points or numbered items
+      const bulletPoints = specificRecSection[0].match(/(?:^|\n)[•\-\*\d\.\)]+\s*([^\n]+)/g);
+      if (bulletPoints) {
+        bulletPoints.forEach(point => {
+          // Clean up the bullet point
+          const cleaned = point.replace(/^[\s•\-\*\d\.\)]+\s*/, '').trim();
+          if (cleaned && !cleaned.match(/^(?:Specific Recommendations|Recommendations|Advisor Recommendations)/i)) {
+            recommendations.push(cleaned);
+          }
+        });
+      }
+    }
+    
+    // If no specific section found, look for patterns that suggest recommendations
+    if (recommendations.length === 0) {
+      // Look for sentences that start with action verbs or recommendation language
+      const recPatterns = [
+        /(?:^|\n)(?:Establish|Review|Implement|Maintain|Consider|Restructure|Consolidate|Diversify|Reduce|Increase)[^\n\.]+\./gi,
+        /(?:^|\n)(?:We recommend|I recommend|It is recommended|You should)[^\n\.]+\./gi,
+        /(?:^|\n)(?:A|The) recommended (?:approach|strategy|action)[^\n\.]+\./gi
+      ];
+      
+      recPatterns.forEach(pattern => {
+        const matches = text.match(pattern);
+        if (matches) {
+          matches.forEach(match => {
+            const cleaned = match.trim();
+            if (cleaned && !recommendations.includes(cleaned)) {
+              recommendations.push(cleaned);
+            }
+          });
+        }
+      });
+    }
+    
+    return recommendations;
+  };
+  
+  // Helper function to extract product recommendations from text
+  const extractProductRecommendations = (text: string): Array<{name: string, description?: string}> => {
+    const products: Array<{name: string, description?: string}> = [];
+    
+    // Look for specific sections that might contain product recommendations
+    const productSection = text.match(/(?:Suggested Investment Products|Investment Products|Product Recommendations)[\s\S]*?(?=\n\n\S|$)/i);
+    if (productSection) {
+      // Extract product names and descriptions
+      const productBlocks = productSection[0].split(/\n\n/);
+      
+      productBlocks.forEach(block => {
+        // Skip the section header
+        if (block.match(/^(?:Suggested Investment Products|Investment Products|Product Recommendations)/i)) {
+          return;
+        }
+        
+        // Extract product name (usually at the beginning of a paragraph or after a bullet)
+        const productMatch = block.match(/(?:^|\n)[•\-\*\d\.\)]*\s*([A-Za-z0-9\s]+(?:ETF|Fund|Account|Annuity|CMA|Portfolio|Trust))/i);
+        if (productMatch) {
+          const name = productMatch[1].trim();
+          let description = '';
+          
+          // Extract description (everything after the product name)
+          const descriptionText = block.substring(block.indexOf(name) + name.length).trim();
+          if (descriptionText) {
+            description = descriptionText.replace(/^[:\-\s]+/, '').trim();
+          }
+          
+          products.push({ name, description });
+        }
+      });
+    }
+    
+    // If no specific section found, look for product names throughout the text
+    if (products.length === 0) {
+      const productPatterns = [
+        /(?:Vanguard|iShares|SPDR|Betashares|Magellan|Platinum|Fidelity|BlackRock|State Street|Challenger|Macquarie)[\s\w]+(?:ETF|Fund|Account|Annuity|CMA|Portfolio|Trust)/g,
+        /(?:^|\n)[•\-\*\d\.\)]*\s*([A-Za-z0-9\s]+(?:ETF|Fund|Account|Annuity|CMA|Portfolio|Trust))/gm
+      ];
+      
+      productPatterns.forEach(pattern => {
+        const matches = text.match(pattern);
+        if (matches) {
+          matches.forEach(match => {
+            const name = match.trim();
+            if (name && !products.some(p => p.name === name)) {
+              products.push({ name });
+            }
+          });
+        }
+      });
+    }
+    
+    return products;
   };
 
   useEffect(() => {
@@ -950,12 +1324,21 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
     // Load product recommendations when component mounts
     fetchProductRecommendations(client.id)
       .then((result) => {
-        if (!result.error) {
-          setProductRecommendations(result.recommendations || []);
-        }
+        setProductRecommendations(result.recommendations || []);
       })
       .catch((err) => {
         console.error('Error loading product recommendations on mount:', err);
+      });
+      
+    // Load advisor recommendations when component mounts
+    fetchAdvisorRecommendations(client.id)
+      .then((result) => {
+        if (!result.error) {
+          setAdvisorRecommendations(result.recommendations || []);
+        }
+      })
+      .catch((err) => {
+        console.error('Error loading advisor recommendations on mount:', err);
       });
   }, []);
 
@@ -998,6 +1381,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
       .filter(Boolean);
       
     let currentRecommendations = recommendations.filter(rec => rec.recommendation_text?.trim());
+    let currentAdvisorRecommendations = advisorRecommendations.filter(rec => rec.recommendation_text?.trim());
     let currentProductRecommendations = productRecommendations.filter(rec => rec.product_name?.trim());
     let currentGoalsObjectives = [];
     
@@ -1129,11 +1513,14 @@ ${currentSelectedReasons.map(reason => `- ${reason.reason_text}${reason.statemen
 ${currentSelectedCoverageAreas && currentSelectedCoverageAreas.length > 0 ? `## Advice Coverage Areas
 ${currentSelectedCoverageAreas.map(area => `- ${area.coverage_text}${area.statement ? `\n  Statement: ${area.statement}` : ''}`).join('\n')}` : ''}
 
-${currentRecommendations && currentRecommendations.length > 0 ? `## Advisor Recommendations
-${currentRecommendations.filter(rec => rec.recommendation_text && rec.recommendation_text.trim()).map((rec, index) => `${index + 1}. ${rec.recommendation_text}`).join('\n')}` : ''}
+${currentAdvisorRecommendations && currentAdvisorRecommendations.length > 0 ? `## Advisor Recommendations
+${currentAdvisorRecommendations.map(rec => `- ${rec.recommendation_text}`).join('\n')}` : ''}
+
+${currentRecommendations && currentRecommendations.length > 0 ? `## General Recommendations
+${currentRecommendations.map(rec => `- ${rec.recommendation_text}`).join('\n')}` : ''}
 
 ${currentProductRecommendations && currentProductRecommendations.length > 0 ? `## Product Recommendations
-${currentProductRecommendations.map(rec => `- ${rec.product_name || rec.name}: ${rec.description || 'No description provided'}`).join('\n')}` : ''}
+${currentProductRecommendations.map(rec => `- ${rec.product_name}`).join('\n')}` : ''}
 
 ${currentGoalsObjectives && currentGoalsObjectives.length > 0 ? `## Goals and Objectives
 ${currentGoalsObjectives.map(goal => `- ${goal.goal_text || goal.text}${goal.timeframe ? ` (Timeframe: ${goal.timeframe})` : ''}`).join('\n')}` : ''}
@@ -1219,7 +1606,7 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
     console.log("Saving changes to client data:", editableClientData);
 
     try {
-      const updateData: Partial<ClientData> = {};
+      const updateData: Record<string, any> = {};
       
       (Object.keys(editableClientData) as Array<keyof ClientData>).forEach(key => {
         if (key === 'id') return;
@@ -1228,20 +1615,21 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
         let currentValue = editableClientData[key];
         
         if ((key === 'client1_dob' || key === 'client2_dob' || key === 'consultation_date') && currentValue) {
-          if (currentValue instanceof Date) {
-            currentValue = currentValue.toISOString();
+          // Check if currentValue is a Date-like object with toISOString method
+          if (typeof currentValue === 'object' && currentValue !== null && typeof (currentValue as any).toISOString === 'function') {
+            currentValue = (currentValue as Date).toISOString();
           }
           
           if (originalValue && typeof originalValue === 'string') {
             const originalDate = new Date(originalValue);
             if (!isNaN(originalDate.getTime())) {
-              originalValue = originalDate.toISOString();
+              originalValue = originalDate.toISOString() as any;
             }
           }
         }
         
         if (currentValue !== originalValue) {
-          updateData[key] = currentValue;
+          updateData[key as string] = currentValue;
         }
       });
       
@@ -1285,7 +1673,7 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
     }
   };
 
-  const renderEditableCell = (field: keyof ClientData, clientIndex: 1 | 2 | null = 1) => {
+  const renderEditableCell = (field: string, clientIndex: 1 | 2 | null = 1) => {
     const actualFieldKey = (field === 'total_lifestyle_assets' || field === 'total_living_expenses' || field === 'total_investment_assets' || field === 'total_superannuation_assets' || field === 'total_client_loans' || field === 'total_client_insurance' || field === 'consultation_date' || field === 'advisor_name' || field === 'advisor_advice')
       ? field
       : (clientIndex === 2 ? `client2_${field}` : `client1_${field}`) as keyof ClientData;
@@ -1425,6 +1813,17 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
         >
           <MessageSquare className="h-4 w-4 mr-1" />
           Place Details in Chat
+        </Button>
+        <Button
+          onClick={() => {
+            console.log('Extract Recommendations button clicked');
+            analyzeAdvisorComments();
+          }}
+          variant="blue"
+          className="btn-pulse"
+        >
+          <Search className="h-4 w-4 mr-1" />
+          Extract Recommendations
         </Button>
       </div>
       <div className="w-full overflow-x-auto">
@@ -1663,6 +2062,26 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
                   </div>
                 ) : (
                   <div className="text-sm text-gray-400 italic">No goals</div>
+                )}
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell className="font-medium flex items-center gap-2">
+                Advisor Recommendations
+                <button
+                  className="ml-auto p-1 rounded-full hover:bg-gray-100"
+                  onClick={() => setShowAdvisorRecommendationsModal(true)}
+                >
+                  <Plus size={16} />
+                </button>
+              </TableCell>
+              <TableCell>
+                {advisorRecommendations.filter(r => r.recommendation_text.trim() !== '').length > 0 ? (
+                  <span>
+                    {advisorRecommendations.filter(r => r.recommendation_text.trim() !== '').length} advisor recommendation{advisorRecommendations.filter(r => r.recommendation_text.trim() !== '').length !== 1 ? 's' : ''}
+                  </span>
+                ) : (
+                  <span className="text-gray-500">No advisor recommendations added</span>
                 )}
               </TableCell>
             </TableRow>
@@ -2607,6 +3026,62 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
                   className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
                   onClick={handleSaveGoalsObjectives}
                   disabled={goalsObjectivesLoading}
+                >
+                  Save
+                </button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Advisor Recommendations Modal */}
+      <Dialog open={showAdvisorRecommendationsModal} onOpenChange={setShowAdvisorRecommendationsModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Advisor Recommendations</DialogTitle>
+            <DialogDescription>
+              Add up to eight advisor recommendations. These are general recommendations from the advisor to the client.
+            </DialogDescription>
+          </DialogHeader>
+          {advisorRecommendationsLoading ? (
+            <div className="text-center text-gray-500 py-8">Loading...</div>
+          ) : (
+            <>
+              <div className="space-y-4 max-h-[60vh] overflow-y-auto p-2">
+                {advisorRecommendations.map((rec, idx) => (
+                  <div key={idx} className="p-4 border rounded-md bg-gray-50">
+                    <h4 className="font-medium mb-2">Recommendation {idx + 1}</h4>
+                    
+                    <label htmlFor={`advisor-recommendation-${idx}`} className="font-medium text-sm mt-2">
+                      Recommendation Text
+                    </label>
+                    <textarea
+                      id={`advisor-recommendation-${idx}`}
+                      value={rec.recommendation_text}
+                      onChange={e => {
+                        const updated = [...advisorRecommendations];
+                        updated[idx].recommendation_text = e.target.value;
+                        setAdvisorRecommendations(updated);
+                      }}
+                      className="w-full text-sm p-2 border rounded min-h-[80px]"
+                      placeholder="Enter recommendation"
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <button
+                  className="px-4 py-2 rounded border bg-gray-100 hover:bg-gray-200"
+                  onClick={() => setShowAdvisorRecommendationsModal(false)}
+                  disabled={advisorRecommendationsLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                  onClick={handleSaveAdvisorRecommendations}
+                  disabled={advisorRecommendationsLoading}
                 >
                   Save
                 </button>

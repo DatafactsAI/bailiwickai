@@ -13,15 +13,15 @@ export interface ProductRecommendation {
 
 export const fetchProductRecommendations = async (clientId: string) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('product_recommendations')
       .select('*')
       .eq('client_id', clientId)
-      .order('created_at');
+      .order('id', { ascending: true });
 
     if (error) {
       console.error('Error fetching product recommendations:', error);
-      return { recommendations: [] };
+      return { recommendations: [], error: error.message };
     }
 
     // Ensure we always have 8 recommendation slots
@@ -47,6 +47,10 @@ export const fetchProductRecommendations = async (clientId: string) => {
 
 export const saveProductRecommendations = async (recommendations: ProductRecommendation[]) => {
   try {
+    if (!recommendations || recommendations.length === 0) {
+      return { success: true };
+    }
+
     // Filter out empty recommendations
     const validRecommendations = recommendations.filter(
       rec => rec.product_name.trim() !== '' || rec.amount > 0
@@ -61,7 +65,7 @@ export const saveProductRecommendations = async (recommendations: ProductRecomme
     }
 
     // Delete existing recommendations for this client
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await (supabase as any)
       .from('product_recommendations')
       .delete()
       .eq('client_id', clientId);
@@ -80,7 +84,7 @@ export const saveProductRecommendations = async (recommendations: ProductRecomme
         updated_at: new Date().toISOString()
       }));
 
-      const { error: insertError } = await supabase
+      const { error: insertError } = await (supabase as any)
         .from('product_recommendations')
         .insert(recommendationsWithIds);
 
