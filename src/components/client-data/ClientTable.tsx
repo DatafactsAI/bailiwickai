@@ -36,15 +36,23 @@ interface ClientTableProps {
 const parseCurrencyLocal = (value: string | number): number => {
   if (typeof value === 'number') return value;
   if (typeof value !== 'string') return 0;
+  
+  // Remove all non-numeric characters except decimal point and negative sign
   const numericString = value.replace(/[^0-9.-]+/g, '');
-  const parsed = parseFloat(numericString);
+  
+  // Handle the case where there might be multiple decimal points
+  const parts = numericString.split('.');
+  const cleanedString = parts[0] + (parts.length > 1 ? '.' + parts.slice(1).join('') : '');
+  
+  const parsed = parseFloat(cleanedString);
   return isNaN(parsed) ? 0 : parsed;
 };
 
 export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableProps) {
   const { toast } = useToast();
   const [editableClientData, setEditableClientData] = useState<ClientData>(client);
-  const [isDirty, setIsDirty] = useState(false); 
+  const [isDirty, setIsDirty] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null); 
   const [showLifestyleModal, setShowLifestyleModal] = useState(false);
   const [showInvestmentModal, setShowInvestmentModal] = useState(false);
   const [showSuperannuationModal, setShowSuperannuationModal] = useState(false);
@@ -1054,27 +1062,32 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
   // Function to analyze advisor comments and extract recommendations
   const analyzeAdvisorComments = async () => {
     try {
-      const advisorAdvice = client.advisor_advice || '';
-      if (!advisorAdvice.trim()) {
-        toast({
-          title: 'No advisor comments',
-          description: 'There are no advisor comments to analyze.',
-          variant: 'default',
-        });
-        return;
-      }
-
       // Set loading states
       setAdvisorRecommendationsLoading(true);
       setProductRecommendationsLoading(true);
+      let updatesFound = false;
+      
+      // Get the advisor advice text
+      const advisorAdvice = editableClientData.advisor_advice || '';
+      
+      if (!advisorAdvice.trim()) {
+        toast({
+          title: 'No Advice Text',
+          description: 'Please enter advisor advice text first.',
+          variant: 'destructive',
+        });
+        setAdvisorRecommendationsLoading(false);
+        setProductRecommendationsLoading(false);
+        return;
+      }
+      
+      console.log('Starting recommendation extraction with text:', advisorAdvice.substring(0, 100) + '...');
       
       try {
-        // Use the OpenAI recommendation extractor
-        const extractedRecommendations = await recommendationExtractor.extractRecommendations(
-          advisorAdvice,
-          client.id
-        );
+        // Extract recommendations using OpenAI
+        const extractedRecommendations = await recommendationExtractor.extractRecommendations(advisorAdvice, client.id);
         
+        console.log('Extracted recommendations:', JSON.stringify(extractedRecommendations, null, 2));
         let updatesFound = false;
         
         // Process advisor recommendations
@@ -1138,9 +1151,18 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
             }
           } catch (err) {
             console.error('Error processing advisor recommendations:', err);
+            // Log detailed error information
+            if (err instanceof Error) {
+              console.error('Error name:', err.name);
+              console.error('Error message:', err.message);
+              console.error('Error stack:', err.stack);
+            } else {
+              console.error('Unknown error type:', typeof err);
+            }
+            
             toast({
               title: 'Error',
-              description: 'Error processing advisor recommendations.',
+              description: err instanceof Error ? `Error: ${err.message}` : 'Error processing advisor recommendations.',
               variant: 'destructive',
             });
           }
@@ -1203,9 +1225,18 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
             }
           } catch (err) {
             console.error('Error processing product recommendations:', err);
+            // Log detailed error information
+            if (err instanceof Error) {
+              console.error('Error name:', err.name);
+              console.error('Error message:', err.message);
+              console.error('Error stack:', err.stack);
+            } else {
+              console.error('Unknown error type:', typeof err);
+            }
+            
             toast({
               title: 'Error',
-              description: 'Error processing product recommendations.',
+              description: err instanceof Error ? `Error: ${err.message}` : 'Error processing product recommendations.',
               variant: 'destructive',
             });
           }
@@ -1238,11 +1269,21 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
       }
     } catch (error) {
       console.error('Error in analyzeAdvisorComments:', error);
+      // Log detailed error information
+      if (error instanceof Error) {
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      } else {
+        console.error('Unknown error type:', typeof error);
+      }
+      
       toast({
         title: 'Error',
-        description: 'An unexpected error occurred.',
+        description: error instanceof Error ? `Error: ${error.message}` : 'An unexpected error occurred.',
         variant: 'destructive',
       });
+    } finally {
       setAdvisorRecommendationsLoading(false);
       setProductRecommendationsLoading(false);
     }
@@ -1607,7 +1648,7 @@ export function ClientTable({ client, onPlaceInChat, onDataSaved }: ClientTableP
       // Update client data in database if we have updated data
       if (updatedClientData && Object.keys(updatedClientData).length > 0) {
         const { error: updateError } = await (supabase as any)
-          .from('clients')
+          .from('clients_financial_data')
           .update(updatedClientData)
           .eq('id', clientData.id);
           
@@ -1909,6 +1950,7 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
     }
   };
 
+  // Handle regular input changes
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     field: keyof ClientData
@@ -1916,9 +1958,8 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
     const { value, type } = e.target;
     let processedValue: string | number | Date | null = value;
 
-    if (type === 'number' || field.includes('salary') || field.includes('balance') || field.includes('tax') || field.includes('received') || field.includes('assets') || field.includes('expenses') || field.includes('loans') || field.includes('insurance')) {
-      processedValue = parseCurrencyLocal(value);
-    } else if (type === 'date' || field.includes('dob')) {
+    // For non-currency fields
+    if (type === 'date' || field.toString().includes('dob')) {
       processedValue = value ? new Date(value) : null;
     }
 
@@ -1926,7 +1967,51 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
       ...prevData,
       [field]: processedValue,
     }));
+    
     setIsDirty(true); 
+  };
+
+  // Special handler for currency inputs to preserve cursor position
+  const handleCurrencyInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: keyof ClientData
+  ) => {
+    // Get the input value and cursor position
+    const input = e.target;
+    const rawValue = input.value;
+    const cursorPosition = input.selectionStart || 0;
+    
+    // Remove any non-numeric characters (except decimal point)
+    const numericString = rawValue.replace(/[^0-9.]/g, '');
+    
+    // Handle multiple decimal points
+    const parts = numericString.split('.');
+    const cleanedValue = parts[0] + (parts.length > 1 ? '.' + parts.slice(1).join('') : '');
+    
+    // Calculate how many characters were removed before the cursor
+    const beforeCursor = rawValue.substring(0, cursorPosition);
+    const cleanedBeforeCursor = beforeCursor.replace(/[^0-9.]/g, '');
+    const newPosition = cleanedBeforeCursor.length;
+    
+    // Update the state with the numeric value
+    const numericValue = parseFloat(cleanedValue) || 0;
+    setEditableClientData(prevData => ({
+      ...prevData,
+      [field]: numericValue,
+    }));
+    
+    // Mark this field as being edited to show raw value
+    setEditingField(field.toString());
+    
+    // Set the cursor position after React updates the DOM
+    requestAnimationFrame(() => {
+      const inputElement = document.getElementById(field.toString()) as HTMLInputElement;
+      if (inputElement) {
+        inputElement.setSelectionRange(newPosition, newPosition);
+      }
+    });
+    
+    setIsDirty(true);
   };
 
   const handleSave = async () => {
@@ -1943,6 +2028,21 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
     try {
       const updateData: Record<string, any> = {};
       
+      // Log health and work status fields for debugging
+      console.log('Current health status fields:', {
+        client1_health: editableClientData.client1_health,
+        client2_health: editableClientData.client2_health,
+        originalClient1Health: client.client1_health,
+        originalClient2Health: client.client2_health
+      });
+      
+      console.log('Current work status fields:', {
+        client1_work_status: editableClientData.client1_work_status,
+        client2_work_status: editableClientData.client2_work_status,
+        originalClient1WorkStatus: client.client1_work_status,
+        originalClient2WorkStatus: client.client2_work_status
+      });
+      
       (Object.keys(editableClientData) as Array<keyof ClientData>).forEach(key => {
         if (key === 'id') return;
         
@@ -1950,22 +2050,20 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
         let currentValue = editableClientData[key];
         
         if ((key === 'client1_dob' || key === 'client2_dob' || key === 'consultation_date') && currentValue) {
-          // Check if currentValue is a Date-like object with toISOString method
-          if (typeof currentValue === 'object' && currentValue !== null && typeof (currentValue as any).toISOString === 'function') {
-            currentValue = (currentValue as Date).toISOString();
-          }
-          
-          if (originalValue && typeof originalValue === 'string') {
-            const originalDate = new Date(originalValue);
-            if (!isNaN(originalDate.getTime())) {
-              originalValue = originalDate.toISOString() as any;
-            }
-          }
+          // Handle date formatting if needed
         }
         
-        if (currentValue !== originalValue) {
-          updateData[key as string] = currentValue;
+        // Compare values and add to updateData if different
+        if (JSON.stringify(currentValue) !== JSON.stringify(originalValue)) {
+          updateData[key] = currentValue;
         }
+      });
+      
+      // Explicitly check health and work status fields
+      ['client1_health', 'client2_health', 'client1_work_status', 'client2_work_status'].forEach(field => {
+        const typedField = field as keyof ClientData;
+        // Make sure these fields are included in the update even if they're empty strings
+        updateData[field] = editableClientData[typedField] || '';  // Use empty string if null/undefined
       });
       
       if (Object.keys(updateData).length === 0) {
@@ -2026,36 +2124,51 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
     // Special handling for income tax and centrelink received fields to allow larger numbers
     if (field.includes('tax') || field.includes('received')) {
       const numValue = typeof value === 'number' ? value : 0;
+      
+      // Show raw value when editing, formatted value otherwise
+      const isEditing = editingField === actualFieldKey.toString();
+      const displayValue = isEditing 
+        ? String(numValue).replace(/[^0-9.]/g, '') 
+        : formatCurrency(numValue);
+      
       return (
         <Input
-          type="number"
-          min="0"
-          step="0.01"
-          max="99999999.99" // Allow up to 8 digits before decimal
-          value={numValue}
-          onChange={(e) => {
-            const numericValue = parseFloat(e.target.value) || 0;
-            setEditableClientData(prev => ({ ...prev, [actualFieldKey]: numericValue }));
-          }}
+          id={actualFieldKey.toString()}
+          type="text"
+          value={displayValue}
+          onChange={(e) => handleCurrencyInputChange(e, actualFieldKey)}
           className="w-full px-1 py-0.5 border-input"
+          maxLength={20} // Allow for sufficient digits
+          onFocus={() => setEditingField(actualFieldKey.toString())}
           onBlur={(e) => {
-            const numericValue = parseFloat(e.target.value) || 0;
+            const numericValue = parseCurrencyLocal(e.target.value);
             setEditableClientData(prev => ({ ...prev, [actualFieldKey]: numericValue }));
+            setEditingField(null);
           }}
         />
       );
     } else if (field.includes('salary') || field.includes('balance') || field.includes('assets') || field.includes('expenses') || field.includes('loans') || field.includes('insurance')) {
       const numValue = typeof value === 'number' ? value : 0;
+      
+      // Show raw value when editing, formatted value otherwise
+      const isEditing = editingField === actualFieldKey.toString();
+      const displayValue = isEditing 
+        ? String(numValue).replace(/[^0-9.]/g, '') 
+        : formatCurrency(numValue);
+      
       return (
         <Input
+          id={actualFieldKey.toString()}
           type="text"
-          value={formatCurrency(numValue)}
-          onChange={(e) => handleInputChange(e, actualFieldKey)}
+          value={displayValue}
+          onChange={(e) => handleCurrencyInputChange(e, actualFieldKey)}
           className="w-full px-1 py-0.5 border-input"
+          maxLength={20} // Allow for sufficient digits
+          onFocus={() => setEditingField(actualFieldKey.toString())}
           onBlur={(e) => {
             const numericValue = parseCurrencyLocal(e.target.value);
             setEditableClientData(prev => ({ ...prev, [actualFieldKey]: numericValue }));
-            e.target.value = formatCurrency(numericValue);
+            setEditingField(null);
           }}
         />
       );
