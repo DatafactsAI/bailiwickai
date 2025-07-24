@@ -82,23 +82,23 @@ export function FinancialPlanWriter() {
       const adviceReasons = adviceReasonsResult.reasons || [];
       
       const reasonsWithDetails = selectedReasons.map(selectedReason => {
-        const reasonDetails = adviceReasons.find(reason => reason.id === selectedReason.reason_id);
+        const reasonDetails = adviceReasons.find(reason => reason.id === (selectedReason as any).reason_id);
         return {
           reason: reasonDetails?.reason_text || "Unknown reason",
-          statement: selectedReason.statement || "",
+          statement: (selectedReason as any).statement || "",
           category: reasonDetails?.category || ""
         };
       });
 
       // Process advice coverage areas with statements
-      const selectedCoverageAreas = clientSelectedCoverageAreasResult.selectedCoverageAreas || [];
+      const selectedCoverageAreaIds = clientSelectedCoverageAreasResult.selectedCoverageAreaIds || [];
       const coverageAreas = adviceCoverageAreasResult.coverageAreas || [];
       
-      const coverageAreasWithDetails = selectedCoverageAreas.map(selectedArea => {
-        const areaDetails = coverageAreas.find(area => area.id === selectedArea.coverage_area_id);
+      const coverageAreasWithDetails = selectedCoverageAreaIds.map(areaId => {
+        const areaDetails = coverageAreas.find(area => area.id === areaId);
         return {
           area: areaDetails?.coverage_text || "Unknown area",
-          statement: selectedArea.statement || "",
+          statement: "",
           category: areaDetails?.category || ""
         };
       });

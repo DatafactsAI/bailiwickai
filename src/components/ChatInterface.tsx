@@ -46,7 +46,13 @@ export const ChatInterface = memo(({ onSendMessage }: ChatInterfaceProps) => {
         .single();
         
       if (error) throw error;
-      return data as ClientData;
+      // Ensure required properties exist with defaults
+      return {
+        ...data,
+        total_superannuation_assets: (data as any).total_superannuation_assets ?? 0,
+        total_client_loans: (data as any).total_client_loans ?? 0,
+        total_client_insurance: (data as any).total_client_insurance ?? 0,
+      } as ClientData;
     },
     enabled: !!currentClientData?.clientId,
   });

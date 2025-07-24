@@ -55,7 +55,13 @@ export function ClientDataViewer({ onClientSelect, onClientDetailsPlaced }: Clie
         .order('consultation_date', { ascending: false });
 
       if (error) throw error;
-      return data as ClientData[];
+      // Ensure required properties exist with defaults
+      return (data || []).map(client => ({
+        ...client,
+        total_superannuation_assets: (client as any).total_superannuation_assets ?? 0,
+        total_client_loans: (client as any).total_client_loans ?? 0,
+        total_client_insurance: (client as any).total_client_insurance ?? 0,
+      })) as ClientData[];
     },
   });
 
