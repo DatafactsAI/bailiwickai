@@ -27,6 +27,7 @@ export function FinancialPlanWriter() {
   // Zapier webhook URLs
   const primaryWebhookUrl = 'https://hooks.zapier.com/hooks/catch/17752322/2wrf9gm/';
   const secondaryWebhookUrl = 'https://hooks.zapier.com/hooks/catch/17752322/2wxnady/';
+  const tertiaryWebhookUrl = 'https://hooks.zapier.com/hooks/catch/17752322/uoxkcaj/';
 
   // Set up real-time subscription
   useClientDataSubscription();
@@ -182,12 +183,22 @@ export function FinancialPlanWriter() {
         body: JSON.stringify(aiReadyPayload),
       });
       
-      // Wait for both requests to complete
-      await Promise.all([primaryResponse, secondaryResponse]);
+      // Send to tertiary webhook
+      const tertiaryResponse = fetch(tertiaryWebhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        mode: "no-cors",
+        body: JSON.stringify(aiReadyPayload),
+      });
+      
+      // Wait for all three requests to complete
+      await Promise.all([primaryResponse, secondaryResponse, tertiaryResponse]);
 
       toast({
         title: "Financial Plan Request Sent",
-        description: "Comprehensive client data has been sent to both Zapier webhooks for AI processing. Please check your Zaps' history.",
+        description: "Comprehensive client data has been sent to all three Zapier webhooks for AI processing. Please check your Zaps' history.",
       });
       setIsOpen(false);
     } catch (error) {
