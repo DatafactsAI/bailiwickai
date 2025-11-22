@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Ingestion Service
+ingestion/.env
+ingestion/__pycache__/
+ingestion/.pytest_cache/
+
