@@ -1,9 +1,13 @@
-
-import { ChatInterface } from "@/components/ChatInterface";
-import { ClientDataViewer } from "@/components/ClientDataViewer";
-import { FinancialPlanWriter } from "@/components/FinancialPlanWriter";
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChatInterface } from "@/components/ChatInterface";
+import { ClientSidebar } from "@/components/layout/ClientSidebar";
+import { ContextPanel } from "@/components/layout/ContextPanel";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 
 export default function Index() {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -12,45 +16,68 @@ export default function Index() {
   const handleClientSelect = (clientId: string | null) => {
     setSelectedClientId(clientId);
     
-    // When a client is selected, invalidate the relevant queries
     if (clientId) {
       queryClient.invalidateQueries({ queryKey: ['client', clientId] });
     }
   };
 
   const handleClientDetailsPlaced = () => {
-    // Invalidate queries when client details are placed in chat
     queryClient.invalidateQueries({ queryKey: ['messages'] });
     queryClient.invalidateQueries({ queryKey: ['client', selectedClientId] });
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      <header className="fixed top-0 left-0 right-0 bg-white border-b z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-[#0284C7]">Bailiwick AI</h1>
-          <div className="flex gap-3">
-            <ClientDataViewer 
-              onClientSelect={handleClientSelect} 
-              onClientDetailsPlaced={handleClientDetailsPlaced}
-            />
-            <FinancialPlanWriter />
+    <div className="h-screen w-full overflow-hidden bg-background">
+      <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center px-6 fixed top-0 w-full z-50 shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200">
+            B
           </div>
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-600">
+            Bailiwick AI
+          </h1>
         </div>
       </header>
-      <main className="flex-1 container mx-auto px-4 mt-[72px]">
-        <ChatInterface onSendMessage={(message) => {
-          if (selectedClientId) {
-            const advisorAdviceBtn = document.querySelector('[data-advisor-advice-button]');
-            if (advisorAdviceBtn) {
-              (advisorAdviceBtn as HTMLButtonElement).click();
-            }
-          }
+
+      <div className="h-full pt-14">
+        <ResizablePanelGroup direction="horizontal" className="h-full w-full">
+          {/* Left Sidebar: Client List */}
+          <ResizablePanel defaultSize={20} minSize={15} maxSize={30} className="bg-gray-50/50">
+            <ClientSidebar 
+              selectedClientId={selectedClientId} 
+              onClientSelect={handleClientSelect} 
+            />
+          </ResizablePanel>
           
-          // Force data refresh after sending a message
-          queryClient.invalidateQueries({ queryKey: ['messages'] });
-        }} />
-      </main>
+          <ResizableHandle withHandle className="bg-gray-100" />
+
+          {/* Center: Chat Interface */}
+          <ResizablePanel defaultSize={50} minSize={30}>
+            <div className="h-full bg-white">
+              <ChatInterface onSendMessage={(message) => {
+                if (selectedClientId) {
+                  // Trigger logic if needed, potentially via context/hooks instead of DOM query
+                  const advisorAdviceBtn = document.querySelector('[data-advisor-advice-button]');
+                  if (advisorAdviceBtn) {
+                    (advisorAdviceBtn as HTMLButtonElement).click();
+                  }
+                }
+                queryClient.invalidateQueries({ queryKey: ['messages'] });
+              }} />
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle className="bg-gray-100" />
+
+          {/* Right Sidebar: Context (Data/Plan) */}
+          <ResizablePanel defaultSize={30} minSize={25} maxSize={45} className="bg-white shadow-xl shadow-gray-100 z-10">
+            <ContextPanel 
+              selectedClientId={selectedClientId}
+              onClientDetailsPlaced={handleClientDetailsPlaced}
+            />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
     </div>
   );
 }

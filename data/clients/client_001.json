@@ -1,0 +1,144 @@
+{
+  "id": "001",
+  "clientInfo": {
+    "client1": {
+      "name": "John Smith",
+      "dob": "1975/03/15",
+      "grossSalary": 95000,
+      "superBalance": 320000,
+      "health": "Good",
+      "workStatus": "Full-time",
+      "incomeTax": 22000,
+      "centrelinkReceived": 0
+    },
+    "client2": {
+      "name": "Jane Smith",
+      "dob": "1978/07/22",
+      "grossSalary": 78000,
+      "superBalance": 245000,
+      "health": "Excellent",
+      "workStatus": "Part-time",
+      "incomeTax": 16000,
+      "centrelinkReceived": 0
+    },
+    "consultationDate": "2025/11/22",
+    "advisorName": "Andrea Paynter"
+  },
+  "financialSummary": {
+    "totalLifestyleAssets": 650000,
+    "totalLivingExpenses": 85000,
+    "totalInvestmentAssets": 180000,
+    "totalSuperannuationAssets": 565000,
+    "totalClientLoans": 350000,
+    "totalClientInsurance": 15000
+  },
+  "detailedAssets": {
+    "lifestyleAssets": [
+      {
+        "name": "Primary Residence",
+        "value": 550000,
+        "owner": "Joint"
+      },
+      {
+        "name": "2019 Toyota Camry",
+        "value": 25000,
+        "owner": "John Smith"
+      },
+      {
+        "name": "2021 Honda CR-V",
+        "value": 35000,
+        "owner": "Jane Smith"
+      },
+      {
+        "name": "Caravan",
+        "value": 40000,
+        "owner": "Joint"
+      }
+    ],
+    "investmentAssets": [
+      {
+        "name": "Vanguard ETF Portfolio",
+        "value": 120000,
+        "owner": "John Smith",
+        "return": 7.5
+      },
+      {
+        "name": "Term Deposit",
+        "value": 60000,
+        "owner": "Jane Smith",
+        "return": 4.2
+      }
+    ],
+    "superannuationAssets": [
+      {
+        "owner": "John Smith",
+        "fundName": "AustralianSuper",
+        "balance": 320000,
+        "investmentOption": "Balanced"
+      },
+      {
+        "owner": "Jane Smith",
+        "fundName": "REST Super",
+        "balance": 245000,
+        "investmentOption": "Growth"
+      }
+    ]
+  },
+  "detailedLiabilities": {
+    "loans": [
+      {
+        "type": "Home Loan",
+        "lender": "Commonwealth Bank",
+        "balance": 320000,
+        "interestRate": 5.8,
+        "repayment": 2100,
+        "owner": "Joint"
+      },
+      {
+        "type": "Car Loan",
+        "lender": "Toyota Finance",
+        "balance": 30000,
+        "interestRate": 6.5,
+        "repayment": 650,
+        "owner": "Jane Smith"
+      }
+    ]
+  },
+  "detailedInsurance": {
+    "policies": [
+      {
+        "type": "Life Insurance",
+        "provider": "AIA",
+        "premium": 1200,
+        "sumInsured": 500000,
+        "owner": "John Smith"
+      },
+      {
+        "type": "Income Protection",
+        "provider": "TAL",
+        "premium": 1800,
+        "sumInsured": 6000,
+        "owner": "John Smith"
+      },
+      {
+        "type": "Life Insurance",
+        "provider": "AIA",
+        "premium": 950,
+        "sumInsured": 400000,
+        "owner": "Jane Smith"
+      }
+    ]
+  },
+  "adviceContext": {
+    "reasonsForAdvice": "Planning for retirement, wanting to pay down debt faster, and ensuring adequate insurance coverage for our family.",
+    "currentSituation": "Both working full-time with stable incomes. Have two children aged 12 and 15. Concerned about balancing mortgage repayments with retirement savings.",
+    "concerns": "Worried about whether we're on track for retirement in 15-20 years. Also concerned about managing debt while maximizing super contributions."
+  },
+  "advisorInput": {
+    "analysis": "The Smiths are in a strong financial position with combined income of $173,000 and total assets of $1.395M. Their debt-to-income ratio is manageable at approximately 2:1. Current superannuation balances are reasonable for their ages (50 and 47), but there's opportunity to increase contributions to maximize retirement outcomes.",
+    "recommendations": "1. Consider salary sacrificing additional amounts into super to reduce taxable income and boost retirement savings. 2. Implement a debt reduction strategy focusing on the higher-interest car loan first. 3. Review insurance coverage to ensure it aligns with current family needs and financial obligations. 4. Establish an emergency fund of 3-6 months expenses if not already in place.",
+    "strategies": "Debt Snowball Strategy: Focus extra repayments on car loan to eliminate within 3 years. Super Boost Strategy: Increase combined super contributions by $10,000 annually through salary sacrifice. Insurance Optimization: Consolidate policies where possible to reduce premiums while maintaining adequate coverage. Investment Diversification: Consider adding property or international equities to investment portfolio for better diversification.",
+    "nextSteps": "Schedule follow-up in 3 months to review implementation of salary sacrifice arrangements. Provide debt repayment calculator and projections. Arrange insurance policy review with specialist. Discuss estate planning and will updates."
+  }
+}
+
