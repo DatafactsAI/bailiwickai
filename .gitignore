@@ -28,3 +28,8 @@ ingestion/.env
 ingestion/__pycache__/
 ingestion/.pytest_cache/
 
+# Advice Processor
+advice_processor/.env
+advice_processor/__pycache__/
+advice_processor/.pytest_cache/
+

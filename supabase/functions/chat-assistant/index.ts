@@ -6,9 +6,7 @@ import {
   corsHeaders, 
   enhanceMessageWithContext, 
   verifyAssistant, 
-  createThread,
-  updateClientData,
-  analyzeMessage
+  createThread
 } from './utils.ts';
 
 const openAIApiKey = Deno.env.get('Open_ai_key')!;
@@ -29,61 +27,8 @@ serve(async (req) => {
     const { message, clientData } = await req.json();
     console.log(`[${requestId}] Processing request:`, { message, clientData });
     
-    // First, check if this is a data update request when client data is present
-    if (clientData?.clientId) {
-      console.log(`[${requestId}] Client data present, analyzing message`);
-      const analysis = analyzeMessage(message);
-      console.log(`[${requestId}] Message analysis result:`, analysis);
-      
-      if (analysis.action !== 'none' && analysis.targetValue !== null) {
-        console.log(`[${requestId}] Update action detected:`, { action: analysis.action, value: analysis.targetValue });
-        const updates: Record<string, number> = {};
-        const clientPrefix = `client${analysis.clientNumber}_`;
-        
-        if (analysis.action === 'update_super') {
-          updates[`${clientPrefix}super_balance`] = analysis.targetValue;
-        } else if (analysis.action === 'update_salary') {
-          updates[`${clientPrefix}gross_salary`] = analysis.targetValue;
-        }
-        
-        console.log(`[${requestId}] Prepared updates:`, updates);
-        
-        if (Object.keys(updates).length > 0) {
-          try {
-            console.log(`[${requestId}] Attempting to update client data`);
-            const updatedClient = await updateClientData(supabase, clientData.clientId, updates);
-            console.log(`[${requestId}] Client data updated successfully:`, updatedClient);
-            
-            const successMessage = `I've updated the client's data. The new values are:\n${
-              Object.entries(updates).map(([key, value]) => 
-                `${key.replace(/_/g, ' ')}: $${value.toLocaleString()}`
-              ).join('\n')
-            }`;
-            
-            await supabase
-              .from('messages')
-              .insert([{
-                content: successMessage,
-                type: 'received',
-                timestamp: new Date().toISOString(),
-                metadata: {
-                  ...clientData,
-                  ...updates
-                }
-              }]);
-
-            console.log(`[${requestId}] Success response prepared`);
-            return new Response(
-              JSON.stringify({ success: true, response: successMessage }), 
-              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            );
-          } catch (error) {
-            console.error(`[${requestId}] Update error:`, error);
-            throw error;
-          }
-        }
-      }
-    }
+    // NOTE: Chat assistant is read-only for MVP - cannot modify client data
+    // All update logic has been removed to enforce read-only behavior
 
     // Before processing with OpenAI, get the latest client data for this conversation
     let enrichedClientData = clientData;
@@ -122,11 +67,36 @@ serve(async (req) => {
       }
     }
 
+    // Search knowledge base if query is relevant
+    let kbContext = '';
+    try {
+      console.log(`[${requestId}] Searching knowledge base for query: ${message}`);
+      const kbSearchResponse = await fetch('http://localhost:8000/knowledge-base/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: message, limit: 5 })
+      });
+      
+      if (kbSearchResponse.ok) {
+        const kbData = await kbSearchResponse.json();
+        if (kbData.results && kbData.results.length > 0) {
+          console.log(`[${requestId}] Found ${kbData.results.length} relevant KB chunks`);
+          kbContext = '\n\nRelevant Knowledge Base Content:\n' + 
+            kbData.results.map((r: any, idx: number) => 
+              `[${idx + 1}] ${r.text.substring(0, 500)}${r.text.length > 500 ? '...' : ''}`
+            ).join('\n\n');
+        }
+      }
+    } catch (kbError) {
+      console.error(`[${requestId}] KB search failed:`, kbError);
+      // Continue without KB context if search fails
+    }
+
     // Process message with appropriate context
     console.log(`[${requestId}] Processing chat message with enriched data:`, enrichedClientData);
     const enhancedMessage = enrichedClientData?.clientId 
-      ? enhanceMessageWithContext(message, enrichedClientData)
-      : message;
+      ? enhanceMessageWithContext(message, enrichedClientData) + kbContext
+      : message + kbContext;
 
     const headers = {
       'Authorization': `Bearer ${openAIApiKey}`,

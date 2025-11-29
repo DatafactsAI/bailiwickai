@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Search, Users, UserCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+const API_BASE = "http://localhost:8000";
 
 interface ClientSidebarProps {
   selectedClientId: string | null;
@@ -18,21 +19,31 @@ export function ClientSidebar({ selectedClientId, onClientSelect }: ClientSideba
   const { data: clients, isLoading } = useQuery({
     queryKey: ['clients-list'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('clients_financial_data')
-        .select('id, client1_name, client2_name, consultation_date')
-        .order('consultation_date', { ascending: false });
-      
-      if (error) throw error;
-      return data;
+      const response = await fetch(`${API_BASE}/clients`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch clients');
+      }
+      const data = await response.json();
+      // Backend returns {clients: [...]}, and we need to sort by consultation_date
+      const clientsList = data.clients || [];
+      // Sort by consultation_date descending (most recent first)
+      return clientsList.sort((a: any, b: any) => {
+        const dateA = new Date(a.consultation_date || 0).getTime();
+        const dateB = new Date(b.consultation_date || 0).getTime();
+        return dateB - dateA;
+      });
     }
   });
 
   const filteredClients = clients?.filter(client => {
     const searchLower = searchQuery.toLowerCase();
+    const primaryName = client.client1_name?.toLowerCase() || "";
+    const partnerName = client.client2_name?.toLowerCase() || "";
+    const fallbackId = client.id?.toLowerCase() || "";
     return (
-      client.client1_name?.toLowerCase().includes(searchLower) ||
-      client.client2_name?.toLowerCase().includes(searchLower)
+      primaryName.includes(searchLower) ||
+      partnerName.includes(searchLower) ||
+      fallbackId.includes(searchLower)
     );
   });
 
@@ -65,7 +76,16 @@ export function ClientSidebar({ selectedClientId, onClientSelect }: ClientSideba
               No clients found
             </div>
           ) : (
-            filteredClients?.map((client) => (
+            filteredClients?.map((client) => {
+              const primaryName = client.client1_name?.trim();
+              const partnerName = client.client2_name?.trim();
+              const displayName = primaryName || partnerName
+                ? [primaryName, partnerName].filter(Boolean).join(" & ")
+                : `Client ${client.id}`;
+              const displayDate = client.consultation_date
+                ? new Date(client.consultation_date).toLocaleDateString()
+                : "Consultation date unknown";
+              return (
               <Button
                 key={client.id}
                 variant="ghost"
@@ -84,20 +104,21 @@ export function ClientSidebar({ selectedClientId, onClientSelect }: ClientSideba
                   )} />
                   <div className="flex-1 overflow-hidden">
                     <div className="font-medium truncate">
-                      {client.client1_name}
-                      {client.client2_name && ` & ${client.client2_name}`}
+                      {displayName}
                     </div>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      {new Date(client.consultation_date).toLocaleDateString()}
+                      {displayDate}
                     </div>
                   </div>
                 </div>
               </Button>
-            ))
+            );})
           )}
         </div>
       </ScrollArea>
     </div>
   );
 }
+
+
 

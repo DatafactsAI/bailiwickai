@@ -55,7 +55,7 @@ export function enhanceMessageWithContext(message: string, clientData?: ClientDa
       context += `Client 2's super balance is $${clientData.client2_super_balance}. `;
     }
     
-    context += `\n\nYou can update client data when asked. For example, if someone asks to "change super balance to $100,000", you should update the database.\n\n`;
+    context += `\n\nIMPORTANT: You are a READ-ONLY assistant. You can analyze and provide advice based on client data, but you CANNOT modify or update client data. If asked to change values, politely explain that you can only provide analysis and recommendations, and that data changes must be made through the client data interface.\n\n`;
     context += `Question: ${message}`;
     
     console.log("Enhanced context:", context);

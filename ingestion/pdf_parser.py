@@ -45,3 +45,5 @@ class PDFParser:
             logger.error(f"Failed to extract text from {self.file_path}: {str(e)}")
             raise
 
+
+

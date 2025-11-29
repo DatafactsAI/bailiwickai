@@ -12,7 +12,9 @@ import { Input } from "@/components/ui/input";
 import { ClientData } from './types';
 import { formatCurrency } from './utils';
 import { MessageSquare, Save, Plus, Search } from "lucide-react"; 
-import { supabase } from "@/integrations/supabase/client";
+import { frontendToBackend } from "@/utils/clientDataTransform";
+
+const API_BASE = "http://localhost:8000";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { fetchLifestyleAssets, upsertLifestyleAssets, updateTotalLifestyleAssets } from '@/integrations/supabase/lifestyleAssets';
@@ -25,6 +27,7 @@ import { fetchAdviceCoverageAreas, fetchClientSelectedCoverageAreas, updateClien
 import { fetchAdvisorRecommendations, saveAdvisorRecommendations, AdvisorRecommendation } from '@/integrations/supabase/advisorRecommendations';
 import { fetchProductRecommendations, saveProductRecommendations, ProductRecommendation } from '@/integrations/supabase/productRecommendations';
 import { fetchClientGoalsObjectives, updateClientGoalsObjectives, ClientGoalObjective, GoalCategory, GoalPriority, GoalTimeframe } from '@/integrations/supabase/clientGoalsObjectives';
+import { supabase } from "@/integrations/supabase/client";
 import recommendationExtractor from '@/integrations/openai/recommendationExtractor';
 
 interface ClientTableProps {
@@ -2075,14 +2078,29 @@ ${client.advisor_advice ? `- Advisor Advice: ${client.advisor_advice}` : ''}`;
         return;
       }
       
-      console.log("Sending update to Supabase:", updateData);
+      // Load existing client data from backend to preserve nested structures
+      const existingResponse = await fetch(`${API_BASE}/clients/${client.id}`);
+      if (!existingResponse.ok) {
+        throw new Error('Failed to load existing client data');
+      }
+      const existingBackendData = await existingResponse.json();
       
-      const { error } = await supabase
-        .from('clients_financial_data') 
-        .update(updateData)
-        .eq('id', client.id);
+      // Convert frontend data to backend format, merging with existing data
+      const backendData = frontendToBackend(editableClientData, existingBackendData);
+      
+      console.log("Sending update to FastAPI:", backendData);
+      
+      // Save via FastAPI
+      const response = await fetch(`${API_BASE}/clients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(backendData),
+      });
         
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Failed to save client data' }));
+        throw new Error(error.detail || 'Failed to save client data');
+      }
       
       toast({
         title: "Changes saved successfully",

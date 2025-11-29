@@ -1,27 +1,23 @@
-
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { ClientData } from '@/components/client-data/types';
 import { toast } from '@/hooks/use-toast';
+import { backendToFrontend } from '@/utils/clientDataTransform';
+
+const API_BASE = "http://localhost:8000";
 
 export const useClientData = () => {
   return useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
       try {
-        const { data, error } = await supabase
-          .from('clients_financial_data')
-          .select('*')
-          .order('consultation_date', { ascending: false });
-
-        if (error) throw error;
-        // Ensure required properties exist with defaults
-        return (data || []).map(client => ({
-          ...client,
-          total_superannuation_assets: (client as any).total_superannuation_assets ?? 0,
-          total_client_loans: (client as any).total_client_loans ?? 0,
-          total_client_insurance: (client as any).total_client_insurance ?? 0,
-        })) as ClientData[];
+        const response = await fetch(`${API_BASE}/clients`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch clients');
+        }
+        const data = await response.json();
+        const clientsList = data.clients || [];
+        // Transform each client from backend format to frontend format
+        return clientsList.map(backendToFrontend) as ClientData[];
       } catch (error) {
         console.error('Error fetching client data:', error);
         toast({

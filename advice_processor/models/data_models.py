@@ -160,3 +160,5 @@ class AnalysisResult(BaseModel):
     processedSuperAssetsClient1: List[ProcessedAsset]
     processedSuperAssetsClient2: List[ProcessedAsset]
 
+
+

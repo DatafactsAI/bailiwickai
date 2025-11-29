@@ -1,0 +1,184 @@
+{
+  "clientId": "001",
+  "processedAt": "2025-11-28 20:45:53.607951",
+  "clientNamesSummary": "John Smith and Jane Smith",
+  "restructuredData": "### Client Information\n1. **Client 1 Name**: John Smith  \n   **Client 1 DOB**: 1975/03/15  \n   **Client 1 Gross Salary**: $95,000.00  \n   **Client 1 Super Balance**: $320,000.00  \n   **Client 1 Health**: Good  \n   **Client 1 Work Status**: Full-time\n\n2. **Client 2 Name**: Jane Smith  \n   **Client 2 DOB**: 1978/07/22  \n   **Client 2 Gross Salary**: $78,000.00  \n   **Client 2 Super Balance**: $245,000.00  \n   **Client 2 Health**: Excellent  \n   **Client 2 Work Status**: Part-time\n\n3. **Consultation Date**: 2025/11/22  \n   **Advisor Name**: Andrea Paynter\n\nEnd of Client Information section.\n\n### Financial Summary\n1. **Total Lifestyle Assets**: $650,000.00  \n2. **Total Living Expenses**: $85,000.00  \n3. **Total Investment Assets**: $180,000.00  \n4. **Total Superannuation Assets**: $565,000.00  \n5. **Total Client Loans**: $350,000.00  \n6. **Total Client Insurance**: $15,000.00\n\nEnd of Financial Summary section.\n\n### Detailed Assets\n1. **Lifestyle Asset 1**:  \n   - Name: Primary Residence  \n   - Value: $550,000.00  \n   - Owner: Joint\n\n2. **Lifestyle Asset 2**:  \n   - Name: 2019 Toyota Camry  \n   - Value: $25,000.00  \n   - Owner: John Smith\n\n3. **Lifestyle Asset 3**:  \n   - Name: 2021 Honda CR-V  \n   - Value: $35,000.00  \n   - Owner: Jane Smith\n\n4. **Lifestyle Asset 4**:  \n   - Name: Caravan  \n   - Value: $40,000.00  \n   - Owner: Joint\n\n5. **Investment Asset 1**:  \n   - Name: Vanguard ETF Portfolio  \n   - Value: $120,000.00  \n   - Owner: John Smith\n\n6. **Investment Asset 2**:  \n   - Name: Term Deposit  \n   - Value: $60,000.00  \n   - Owner: Jane Smith\n\n7. **Superannuation Asset 1**:  \n   - Name: AustralianSuper  \n   - Value: $320,000.00  \n   - Owner: John Smith  \n   - Option: Balanced\n\n8. **Superannuation Asset 2**:  \n   - Name: REST Super  \n   - Value: $245,000.00  \n   - Owner: Jane Smith  \n   - Option: Growth\n\nEnd of Detailed Assets section.\n\n### Detailed Liabilities\n1. **Liability 1**:  \n   - Name: Home Loan with Commonwealth Bank  \n   - Balance: $320,000.00  \n   - Rate: 5.8%  \n   - Repayment: $2,100.00  \n   - Owner: Joint\n\n2. **Liability 2**:  \n   - Name: Car Loan with Toyota Finance  \n   - Balance: $30,000.00  \n   - Rate: 6.5%  \n   - Repayment: $650.00  \n   - Owner: Jane Smith\n\nEnd of Detailed Liabilities section.\n\n### Detailed Insurance\n1. **Insurance Policy 1**:  \n   - Name: Life Insurance with AIA  \n   - Premium: $1,200.00  \n   - Sum Insured: $500,000.00  \n   - Owner: John Smith\n\n2. **Insurance Policy 2**:  \n   - Name: Income Protection with TAL  \n   - Premium: $1,800.00  \n   - Sum Insured: $6,000.00  \n   - Owner: John Smith\n\n3. **Insurance Policy 3**:  \n   - Name: Life Insurance with AIA  \n   - Premium: $950.00  \n   - Sum Insured: $400,000.00  \n   - Owner: Jane Smith\n\nEnd of Detailed Insurance section.\n\n### Advice Context\n1. **Reasons for Advice**: Planning for retirement, wanting to pay down debt faster, and ensuring adequate insurance coverage for our family.\n\n2. **Current Situation**: Both working full-time with stable incomes. Have two children aged 12 and 15. Concerned about balancing mortgage repayments with retirement savings.\n\n3. **Concerns**: Worried about whether we're on track for retirement in 15-20 years. Also concerned about managing debt while maximizing super contributions.\n\nEnd of Advice Context section.\n\n### Advisor Input\n1. **Analysis**: The Smiths are in a strong financial position with combined income of $173,000 and total assets of $1.395M. Their debt-to-income ratio is manageable at approximately 2:1. Current superannuation balances are reasonable for their ages (50 and 47), but there's opportunity to increase contributions to maximize retirement outcomes.\n\n2. **Recommendations**:  \n   - Consider salary sacrificing additional amounts into super to reduce taxable income and boost retirement savings.  \n   - Implement a debt reduction strategy focusing on the higher-interest car loan first.  \n   - Review insurance coverage to ensure it aligns with current family needs and financial obligations.  \n   - Establish an emergency fund of 3-6 months expenses if not already in place.\n\n3. **Strategies**:  \n   - Debt Snowball Strategy: Focus extra repayments on car loan to eliminate within 3 years.  \n   - Super Boost Strategy: Increase combined super contributions by $10,000 annually through salary sacrifice.  \n   - Insurance Optimization: Consolidate policies where possible to reduce premiums while maintaining adequate coverage.  \n   - Investment Diversification: Consider adding property or international equities to investment portfolio for better diversification.\n\n4. **Next Steps**:  \n   - Schedule follow-up in 3 months to review implementation of salary sacrifice arrangements.  \n   - Provide debt repayment calculator and projections.  \n   - Arrange insurance policy review with specialist.  \n   - Discuss estate planning and will updates.\n\nEnd of Advisor Input section.\n\n### Goals and Objectives\n1. **Goal 1**: Planning for retirement.\n2. **Goal 2**: Paying down debt faster.\n3. **Goal 3**: Ensuring adequate insurance coverage for the family.\n\nEnd of Goals and Objectives section.\n\n### Flagged Uncertainties\n- No missing fields or blank values were identified in the provided data.\n- All data formats and labels appear consistent.\n\nEnd of Flagged Uncertainties section.",
+  "retirementAnalysis": {
+    "summaryParagraph": "John and Jane Smith are in a solid financial position with a combined income of $173,000 and total assets of $1.395 million. They are focused on planning for retirement in 15-20 years, paying down debt, and ensuring adequate insurance coverage for their family. Their current superannuation balances are reasonable, but there is room to increase contributions to enhance their retirement outcomes.",
+    "retirementPriority": 8,
+    "retirementTimeline": 15
+  },
+  "cashflowAnalysis": {
+    "summaryParagraph": "The Smiths have a stable financial situation with a combined income of $173,000 and total assets of $1.395 million. Their expenses are $85,000 annually, and they have a manageable debt-to-income ratio of approximately 2:1. However, they are concerned about balancing mortgage repayments with retirement savings and managing debt while maximizing super contributions.",
+    "cashflowPriority": 7
+  },
+  "debtAnalysis": {
+    "summaryParagraph": "The Smiths are in a solid financial position with a combined income of $173,000 and total assets of $1.395 million. They have a manageable debt-to-income ratio of approximately 2:1, with a focus on paying down their $350,000 total debt, particularly the higher-interest car loan, while also planning for retirement and ensuring adequate insurance coverage.",
+    "debtRepaymentPriority": 7
+  },
+  "coverageGaps": {
+    "investmentCovered": false,
+    "superannuationCovered": false,
+    "centrelinkCovered": false,
+    "cashflowCovered": true,
+    "debtCovered": false
+  },
+  "strategies": [
+    {
+      "name": "Debt Snowball Strategy",
+      "description": "Focus extra repayments on the car loan to eliminate it within 3 years, thereby reducing high-interest debt more quickly."
+    },
+    {
+      "name": "Super Boost Strategy",
+      "description": "Increase combined super contributions by $10,000 annually through salary sacrifice to reduce taxable income and enhance retirement savings."
+    },
+    {
+      "name": "Insurance Optimization",
+      "description": "Consolidate insurance policies where possible to reduce premiums while maintaining adequate coverage for the family."
+    },
+    {
+      "name": "Investment Diversification",
+      "description": "Consider adding property or international equities to the investment portfolio to achieve better diversification and potential growth."
+    }
+  ],
+  "objectives": [
+    {
+      "name": "Planning for Retirement",
+      "exists": true,
+      "progress": "In Progress",
+      "benefits": "Increasing superannuation contributions will reduce taxable income and enhance retirement savings, ensuring financial security in retirement.",
+      "amount": 565000.0
+    },
+    {
+      "name": "Paying Down Debt Faster",
+      "exists": true,
+      "progress": "In Progress",
+      "benefits": "Reducing debt, particularly high-interest loans, will improve cash flow and financial stability, allowing for more funds to be allocated towards savings and investments.",
+      "amount": null
+    },
+    {
+      "name": "Ensuring Adequate Insurance Coverage",
+      "exists": true,
+      "progress": "In Progress",
+      "benefits": "Adequate insurance coverage provides financial protection for the family in case of unforeseen events, ensuring that financial obligations can be met without depleting savings.",
+      "amount": null
+    }
+  ],
+  "client1Recommendations": [
+    {
+      "exists": true,
+      "description": "Consider salary sacrificing additional amounts into super to reduce taxable income and boost retirement savings."
+    },
+    {
+      "exists": true,
+      "description": "Implement a debt reduction strategy focusing on the higher-interest car loan first."
+    },
+    {
+      "exists": true,
+      "description": "Review insurance coverage to ensure it aligns with current family needs and financial obligations."
+    }
+  ],
+  "client2Recommendations": [
+    {
+      "exists": true,
+      "description": "Consider salary sacrificing additional amounts into super to reduce taxable income and boost retirement savings."
+    },
+    {
+      "exists": true,
+      "description": "Implement a debt reduction strategy focusing on the higher-interest car loan first."
+    },
+    {
+      "exists": true,
+      "description": "Review insurance coverage to ensure it aligns with current family needs and financial obligations."
+    }
+  ],
+  "riskProfile": {
+    "profile": "Balanced",
+    "rationale": "The Smiths are in their late 40s, with a time horizon of 15-20 years until retirement, which allows for a moderate level of risk in their investment strategy. Their stable combined income and substantial asset base provide a solid foundation, but their concerns about debt management and retirement savings suggest a need for a balanced approach. This profile aligns with their goals of planning for retirement and paying down debt, while also considering their current financial obligations and the need for adequate insurance coverage."
+  },
+  "processedLifestyleAssets": [
+    {
+      "exists": true,
+      "description": "Primary Residence",
+      "value": 550000.0
+    },
+    {
+      "exists": true,
+      "description": "2019 Toyota Camry",
+      "value": 25000.0
+    },
+    {
+      "exists": true,
+      "description": "2021 Honda CR-V",
+      "value": 35000.0
+    },
+    {
+      "exists": true,
+      "description": "Caravan",
+      "value": 40000.0
+    },
+    {
+      "exists": false,
+      "description": "",
+      "value": 0.0
+    }
+  ],
+  "processedInvestmentAssetsClient1": [
+    {
+      "exists": true,
+      "description": "Vanguard ETF Portfolio",
+      "value": 120000.0
+    },
+    {
+      "exists": false,
+      "description": "",
+      "value": 0.0
+    },
+    {
+      "exists": false,
+      "description": "",
+      "value": 0.0
+    }
+  ],
+  "processedInvestmentAssetsClient2": [
+    {
+      "exists": true,
+      "description": "Term Deposit",
+      "value": 60000.0
+    },
+    {
+      "exists": false,
+      "description": "",
+      "value": 0.0
+    },
+    {
+      "exists": false,
+      "description": "",
+      "value": 0.0
+    }
+  ],
+  "processedSuperAssetsClient1": [
+    {
+      "exists": true,
+      "description": "AustralianSuper",
+      "value": 320000.0
+    },
+    {
+      "exists": false,
+      "description": "",
+      "value": 0.0
+    }
+  ],
+  "processedSuperAssetsClient2": [
+    {
+      "exists": true,
+      "description": "REST Super",
+      "value": 245000.0
+    },
+    {
+      "exists": false,
+      "description": "",
+      "value": 0.0
+    }
+  ]
+}

@@ -28,9 +28,11 @@ class Config:
         missing = []
         if not cls.OPENAI_API_KEY:
             missing.append("OPENAI_API_KEY")
-        if not cls.WEBHOOK_AUTH_TOKEN:
-            missing.append("WEBHOOK_AUTH_TOKEN")
+        # if not cls.WEBHOOK_AUTH_TOKEN:
+        #     missing.append("WEBHOOK_AUTH_TOKEN")
             
         if missing:
             raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+
+
 

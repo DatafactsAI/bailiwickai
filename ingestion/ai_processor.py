@@ -23,7 +23,18 @@ class AIProcessor:
                 ],
                 temperature=0
             )
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content.strip()
+            
+            # Clean up Markdown code blocks if present
+            if content.startswith("```json"):
+                content = content[7:]
+            elif content.startswith("```"):
+                content = content[3:]
+            
+            if content.endswith("```"):
+                content = content[:-3]
+                
+            return content.strip()
         except Exception as e:
             logger.error(f"OpenAI API call failed: {str(e)}")
             raise
@@ -142,4 +153,6 @@ class AIProcessor:
             f"Text: {text}"
         )
         return self._call_openai(prompt, system_prompt="You are a data extraction assistant. Return only valid JSON.")
+
+
 

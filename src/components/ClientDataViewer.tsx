@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useClientData } from "@/hooks/useClientData";
 import { FileText, X } from "lucide-react";
 import { ClientTable } from './client-data/ClientTable';
 import { ClientSelector } from './client-data/ClientSelector';
@@ -20,50 +20,10 @@ export function ClientDataViewer({ onClientSelect, onClientDetailsPlaced }: Clie
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  // Set up real-time subscription to clients_financial_data
-  React.useEffect(() => {
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'clients_financial_data'
-        },
-        () => {
-          // Invalidate and refetch queries when data changes
-          queryClient.invalidateQueries({ queryKey: ['clients'] });
-          
-          // Also invalidate messages to ensure chat is updated with latest client data
-          queryClient.invalidateQueries({ queryKey: ['messages'] });
-        }
-      )
-      .subscribe();
+  // Real-time subscriptions not needed for local storage
+  // Queries will be invalidated manually after mutations
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [queryClient]);
-
-  const { data: clientsData, isLoading } = useQuery({
-    queryKey: ['clients'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('clients_financial_data')
-        .select('*')
-        .order('consultation_date', { ascending: false });
-
-      if (error) throw error;
-      // Ensure required properties exist with defaults
-      return (data || []).map(client => ({
-        ...client,
-        total_superannuation_assets: (client as any).total_superannuation_assets ?? 0,
-        total_client_loans: (client as any).total_client_loans ?? 0,
-        total_client_insurance: (client as any).total_client_insurance ?? 0,
-      })) as ClientData[];
-    },
-  });
+  const { data: clientsData, isLoading } = useClientData();
 
   const selectedClient = clientsData?.find(client => client.id === selectedClientId);
 

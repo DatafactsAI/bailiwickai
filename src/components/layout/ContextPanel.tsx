@@ -3,12 +3,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ClientTable } from "@/components/client-data/ClientTable";
-import { FinancialPlanWriter } from "@/components/FinancialPlanWriter";
+import { DocumentGenerationPanel } from "@/components/document-generation/DocumentGenerationPanel";
 import { AIAnalysis } from "@/components/AIAnalysis";
+import { StrategyPanel } from "@/components/strategy/StrategyPanel";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { ClientData } from "@/components/client-data/types";
-import { FileText, PenTool, Loader2, Brain } from "lucide-react";
+import { FileText, PenTool, Loader2, Brain, Target } from "lucide-react";
+import { backendToFrontend } from "@/utils/clientDataTransform";
+
+const API_BASE = "http://localhost:8000";
 
 interface ContextPanelProps {
   selectedClientId: string | null;
@@ -23,19 +26,16 @@ export function ContextPanel({ selectedClientId, onClientDetailsPlaced }: Contex
     queryKey: ['client-details', selectedClientId],
     queryFn: async () => {
       if (!selectedClientId) return null;
-      const { data, error } = await supabase
-        .from('clients_financial_data')
-        .select('*')
-        .eq('id', selectedClientId)
-        .single();
-
-      if (error) throw error;
-      return {
-        ...data,
-        total_superannuation_assets: (data as any).total_superannuation_assets ?? 0,
-        total_client_loans: (data as any).total_client_loans ?? 0,
-        total_client_insurance: (data as any).total_client_insurance ?? 0,
-      } as ClientData;
+      const response = await fetch(`${API_BASE}/clients/${selectedClientId}`);
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error('Failed to fetch client data');
+      }
+      const data = await response.json();
+      // Backend returns ClientData model with nested structure, convert to frontend flat format
+      return backendToFrontend(data);
     },
     enabled: !!selectedClientId
   });
@@ -55,7 +55,7 @@ export function ContextPanel({ selectedClientId, onClientDetailsPlaced }: Contex
     <div className="h-full flex flex-col bg-white border-l">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col h-full">
         <div className="px-4 py-3 border-b bg-white/50 backdrop-blur-sm sticky top-0 z-10">
-          <TabsList className="w-full grid grid-cols-3">
+          <TabsList className="w-full grid grid-cols-4">
             <TabsTrigger value="data" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Client Data
@@ -63,6 +63,10 @@ export function ContextPanel({ selectedClientId, onClientDetailsPlaced }: Contex
             <TabsTrigger value="analysis" className="flex items-center gap-2">
               <Brain className="h-4 w-4" />
               AI Analysis
+            </TabsTrigger>
+            <TabsTrigger value="strategy" className="flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Strategy
             </TabsTrigger>
             <TabsTrigger value="plan" className="flex items-center gap-2">
               <PenTool className="h-4 w-4" />
@@ -96,11 +100,23 @@ export function ContextPanel({ selectedClientId, onClientDetailsPlaced }: Contex
               )}
             </TabsContent>
 
+            <TabsContent value="strategy" className="mt-0 h-full">
+              {selectedClientId && (
+                <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <StrategyPanel clientId={selectedClientId} />
+                </div>
+              )}
+            </TabsContent>
+
             <TabsContent value="plan" className="mt-0 h-full">
               <div className="animate-in fade-in-from-bottom-2 duration-300">
-                {/* Reuse logic from FinancialPlanWriter but adapted for panel context */}
-                {/* Note: FinancialPlanWriter might need prop updates to accept external client ID */}
-                <FinancialPlanWriter />
+                <DocumentGenerationPanel 
+                  selectedClientId={selectedClientId}
+                  clientData={selectedClient ? {
+                    ...selectedClient,
+                    // Add any additional data needed for mapping
+                  } : undefined}
+                />
               </div>
             </TabsContent>
           </div>

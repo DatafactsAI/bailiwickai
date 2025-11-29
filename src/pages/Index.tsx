@@ -2,7 +2,10 @@ import { useState } from "react";
 import { ChatInterface } from "@/components/ChatInterface";
 import { ClientSidebar } from "@/components/layout/ClientSidebar";
 import { ContextPanel } from "@/components/layout/ContextPanel";
+import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Settings } from "lucide-react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -11,6 +14,7 @@ import {
 
 export default function Index() {
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const handleClientSelect = (clientId: string | null) => {
@@ -28,7 +32,7 @@ export default function Index() {
 
   return (
     <div className="h-screen w-full overflow-hidden bg-background">
-      <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center px-6 fixed top-0 w-full z-50 shadow-sm">
+      <header className="h-14 border-b bg-white/80 backdrop-blur-md flex items-center justify-between px-6 fixed top-0 w-full z-50 shadow-sm">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-200">
             B
@@ -37,7 +41,18 @@ export default function Index() {
             Bailiwick AI
           </h1>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setSettingsOpen(true)}
+          className="h-9 w-9"
+        >
+          <Settings className="h-4 w-4" />
+          <span className="sr-only">Settings</span>
+        </Button>
       </header>
+
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
 
       <div className="h-full pt-14">
         <ResizablePanelGroup direction="horizontal" className="h-full w-full">

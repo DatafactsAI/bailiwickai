@@ -1,0 +1,1977 @@
+{
+  "template_id": "6e7c8b9cdc524104",
+  "template_name": "4 February 2025 Soa Template (1)",
+  "mappings": {
+    "<Adviser_Email>": {
+      "field": "clientInfo.advisorName",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "high",
+      "format": null
+    },
+    "<Adviser_Name>": {
+      "field": "clientInfo.client1.name",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": null
+    },
+    "<Annual_Monies_Saved_By_Macquarie_Move>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Authorised_Representative_No>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Cashflow_Blurb>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Current_Superfund>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Current_Superfund_Balance>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_DOB>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Employer>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Employment_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Family_Name>": {
+      "field": "clientInfo.client1.name",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": null
+    },
+    "<Client_One_First_Name>": {
+      "field": "clientInfo.client1.name",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": null
+    },
+    "<Client_One_Gender>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Health_Status>": {
+      "field": "clientInfo.client1.health",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": null
+    },
+    "<Client_One_Income_Tax>": {
+      "field": "clientInfo.client1.incomeTax",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Investment_Assets_One_Value>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Investment_Assets_one_Description>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Investment_Assets_three_Description>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Investment_Assets_three_Value>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Investment_Assets_two_Description>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Investment_Assets_two_Value>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Job_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Marital_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Power_Of_Attorney_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Retirement_Age>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Retirement_Month_And_Year>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Salary>": {
+      "field": "clientInfo.client1.grossSalary",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Smoker_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Superannuation_Asset_One_Value>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Superannuation_Asset_two_Value>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Superannuation_Balance>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Superannuation_Fund>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_Supperannuation_Asset_Two_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Supperannuation_Asset_one_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Will_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_Yearly_Recommended_Concessional_Contributions>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Travel_Expense_Amount_Every_Seccond_Year>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Two_Liability_One_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Two_Liability_five_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Two_Liability_four_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Two_Liability_six_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Two_Liability_three_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Two_Liability_two_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Two_Living_Expenses>": {
+      "field": "financialSummary.totalLivingExpenses",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_and_Client_Two_Mortgage>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_One_and_Client_Two_Total_Expenses>": {
+      "field": "financialSummary.totalLivingExpenses",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_and_Client_Two_Total_Income_Tax>": {
+      "field": "clientInfo.client1.incomeTax",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_One_and_Client_Two_Total_Salary>": {
+      "field": "clientInfo.client1.grossSalary",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Current_Superannuation_Provider>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Current_Supperannuation_Provider>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_DOB>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Employer>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Employment_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_First_Name>": {
+      "field": "clientInfo.client1.name",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": null
+    },
+    "<Client_Two_Gender>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Health_Status>": {
+      "field": "clientInfo.client1.health",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": null
+    },
+    "<Client_Two_Income_Tax>": {
+      "field": "clientInfo.client1.incomeTax",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Investment_Assets_One_Value>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Investment_Assets_one_Description>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Investment_Assets_three_Description>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Investment_Assets_three_Value>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Investment_Assets_two_Description>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Investment_Assets_two_Value>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Job_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Marital_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Power_Of_Attorney_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Retirement_Age>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Retirement_Month_And_Year>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Salary>": {
+      "field": "clientInfo.client1.grossSalary",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Smoker_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Superannuation_Asset_one_Value>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Superannuation_Asset_three_Value>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Superannuation_Asset_two_Value>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Superannuation_Fund>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Supperannuation_Asset_one_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Supperannuation_Asset_three_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Supperannuation_Asset_two_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_Two_Total_Superannuation_Value>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Client_Two_Will_Status>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_one_Product_Recommendation_1>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_one_Product_Recommendation_2>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_one_Product_Recommendation_3>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Client_two_First_Name>": {
+      "field": "clientInfo.client1.name",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": null
+    },
+    "<Current_Rate_Three_Month_Rolling_Term_Deposit>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Date>": {
+      "field": "clientInfo.consultationDate",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "high",
+      "format": "date"
+    },
+    "<Fee_Decrease_By_Macquarie_Move>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Fortnightly_Pension_Recommendation_Amount>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Liability_One_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Liability_five_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Liability_four_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Liability_six_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Liability_three_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Liability_two_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Lifestyle_Asset_One_Description>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Lifestyle_Asset_One_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Lifestyle_Asset_Three_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Lifestyle_Asset_Two_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Lifestyle_Asset_four_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Motor_Vehicle_Purchase_Amount>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Motor_Vehicle_Purchase_End_Year>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Motor_Vehicle_Purchase_Start_Year>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<NetCashflow>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Net_Position_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_One>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_One_Benefits_Of_Advice>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_One_Progress>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_Three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_Three_Benefits_Of_Advice>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_Three_Progress>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_Two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_Two_Benefits_Of_Advice>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_Two_Progress>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_four_Benefits_Of_Advice>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Objective_four_Progress>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Projection_Start_Date>": {
+      "field": "clientInfo.consultationDate",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "date"
+    },
+    "<Recommended_Monies_In_Cash>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Recommended_Monies_In_Rolling_Term_Deposit>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Recommended_Monies_in_Cash>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Recommended_Supperannuation_Investment_Monies>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Recommended_Supperannuation_Investment_Monies_in_Dimensional>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Recommended_Supperannuation_Investment_Monies_in_Vanguard>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Reduce_Debt_Blurb>": {
+      "field": "financialSummary.totalClientLoans",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Retirement_Blurb>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Saved_Per_Annum_Per_Macquarie_Move>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Strategy_Recommendation_Five>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Strategy_Recommendation_Four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Strategy_Recommendation_One>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Strategy_Recommendation_Six>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Strategy_Recommendation_Three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Strategy_Recommendation_Two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Superannuation_Growth_Rate>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Superannuation_Income_Rate>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Superannuation_Total_Return>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Total_Assets_Value>": {
+      "field": "financialSummary.totalLifestyleAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Total_Investment_Assets_Value>": {
+      "field": "financialSummary.totalInvestmentAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Total_Liabilities_Value>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Total_Lifestyle_Assets_Value>": {
+      "field": "financialSummary.totalLifestyleAssets",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Total_Pension_Allocation_Amout>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Total_Superannuation_Assets_Value>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<Wedding_Expense_Amount>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Wedding_Expense_Year>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Year_Travel_Ceasing>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Year_Travel_Commending>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<Yearly_Pension_Recommendation_Amount>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<client_two_Product_Recommendation_1>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<client_two_Product_Recommendation_2>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<client_two_Product_Recommendation_3>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_one_investment_asset_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_one_investment_asset_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_one_investment_asset_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_one_product_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_one_product_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_one_product_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_one_super_asset_one>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<cr_client_one_super_asset_two>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<cr_client_two_investment_asset_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_two_investment_asset_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_two_investment_asset_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_two_product_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_two_product_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_two_product_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_client_two_super_asset_one>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<cr_client_two_super_asset_three>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<cr_client_two_super_asset_two>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<cr_covers_Estateplanning>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_covers_Helpingchildren>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_covers_Riskmanagement>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_covers_cash>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_covers_centrelink>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_covers_debt>": {
+      "field": "financialSummary.totalClientLoans",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<cr_covers_insurance>": {
+      "field": "financialSummary.totalClientInsurance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<cr_covers_savings>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_covers_super>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<cr_liability_five>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_liability_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_liability_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_liability_six>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_liability_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_liability_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_lifestyle_asset_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_lifestyle_asset_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_lifestyle_asset_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_lifestyle_asset_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_objective_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_objective_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_objective_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_objective_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_reasons_retirement>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_strategy_five>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_strategy_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_strategy_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_strategy_six>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_strategy_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<cr_strategy_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_one_investment_asset_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_one_investment_asset_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_one_investment_asset_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_one_product_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_one_product_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_one_product_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_one_super_asset_one>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<er_client_one_super_asset_two>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<er_client_two_investment_asset_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_two_investment_asset_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_two_investment_asset_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_two_product_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_two_product_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_two_product_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_client_two_super_asset_one>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<er_client_two_super_asset_three>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<er_client_two_super_asset_two>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<er_covers_Estateplanning>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_covers_Helpingchildren>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_covers_Riskmanagement>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_covers_cash>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_covers_centrelink>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_covers_debt>": {
+      "field": "financialSummary.totalClientLoans",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<er_covers_insurance>": {
+      "field": "financialSummary.totalClientInsurance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<er_covers_savings>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_covers_super>": {
+      "field": "clientInfo.client1.superBalance",
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "medium",
+      "format": "currency"
+    },
+    "<er_liability_five>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_liability_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_liability_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_liability_six>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_liability_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_liability_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_lifestyle_asset_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_lifestyle_asset_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_lifestyle_asset_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_lifestyle_asset_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_objective_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_objective_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_objective_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_objective_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_reasons_retirement>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_strategy_five>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_strategy_four>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_strategy_one>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_strategy_six>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_strategy_three>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<er_strategy_two>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<es_>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    },
+    "<test>": {
+      "field": null,
+      "type": "field_reference",
+      "isCustom": false,
+      "customValue": null,
+      "confidence": "none",
+      "format": null
+    }
+  },
+  "placeholder_signature": "7a9aaae4ffeeacb9af3fa03f54019e7b",
+  "updated_at": "2025-11-28T21:12:44.208251",
+  "created_at": "2025-11-28T21:12:44.208254"
+}

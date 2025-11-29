@@ -1,0 +1,48 @@
+{
+  "id": "client_fec2ab62214f",
+  "clientInfo": {
+    "client1": {
+      "name": "",
+      "dob": "",
+      "grossSalary": 0.0,
+      "superBalance": 0.0,
+      "health": "",
+      "workStatus": "",
+      "incomeTax": 0.0,
+      "centrelinkReceived": 0.0
+    },
+    "client2": null,
+    "consultationDate": "2025/11/28",
+    "advisorName": "Andrea Paynter"
+  },
+  "financialSummary": {
+    "totalLifestyleAssets": 0.0,
+    "totalLivingExpenses": 0.0,
+    "totalInvestmentAssets": 0.0,
+    "totalSuperannuationAssets": 0.0,
+    "totalClientLoans": 0.0,
+    "totalClientInsurance": 0.0
+  },
+  "detailedAssets": {
+    "lifestyleAssets": [],
+    "investmentAssets": [],
+    "superannuationAssets": []
+  },
+  "detailedLiabilities": {
+    "loans": []
+  },
+  "detailedInsurance": {
+    "policies": []
+  },
+  "adviceContext": {
+    "reasonsForAdvice": "Planning for my retirement;Helping children;Estate Planning;Risk Management",
+    "currentSituation": "",
+    "concerns": ""
+  },
+  "advisorInput": {
+    "analysis": "",
+    "recommendations": "",
+    "strategies": "",
+    "nextSteps": ""
+  }
+}

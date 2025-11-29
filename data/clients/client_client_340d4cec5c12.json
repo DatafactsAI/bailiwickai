@@ -1,0 +1,97 @@
+{
+  "id": "client_340d4cec5c12",
+  "clientInfo": {
+    "client1": {
+      "name": "",
+      "dob": "",
+      "grossSalary": 0.0,
+      "superBalance": 0.0,
+      "health": "",
+      "workStatus": "",
+      "incomeTax": 0.0,
+      "centrelinkReceived": 0.0
+    },
+    "client2": null,
+    "consultationDate": "2025/11/28",
+    "advisorName": "Andrea Paynter"
+  },
+  "financialSummary": {
+    "totalLifestyleAssets": 2845000.0,
+    "totalLivingExpenses": 90000.0,
+    "totalInvestmentAssets": 0.0,
+    "totalSuperannuationAssets": 1855000.0,
+    "totalClientLoans": 0.0,
+    "totalClientInsurance": 0.0
+  },
+  "detailedAssets": {
+    "lifestyleAssets": [
+      {
+        "name": "Principal Residence",
+        "value": 2800000.0,
+        "owner": "Client 1"
+      },
+      {
+        "name": "Car (1)",
+        "value": 45000.0,
+        "owner": "Client 1"
+      }
+    ],
+    "investmentAssets": [
+      {
+        "name": "Principal Residence",
+        "value": 2800000.0,
+        "owner": "Client 1",
+        "returnRate": null
+      },
+      {
+        "name": "Car (1)",
+        "value": 45000.0,
+        "owner": "Client 1",
+        "returnRate": null
+      },
+      {
+        "name": "Cash at Bank (1)",
+        "value": 88000.0,
+        "owner": "Client 1",
+        "returnRate": null
+      },
+      {
+        "name": "Cash at Bank (2)",
+        "value": 96000.0,
+        "owner": "Client 1",
+        "returnRate": null
+      }
+    ],
+    "superannuationAssets": [
+      {
+        "owner": "Betty Rubble",
+        "fundName": "AustralianSuper",
+        "balance": 1666000.0,
+        "investmentOption": ""
+      },
+      {
+        "owner": "Barney Rubble",
+        "fundName": "BT Panorama",
+        "balance": 189000.0,
+        "investmentOption": ""
+      }
+    ]
+  },
+  "detailedLiabilities": {
+    "loans": []
+  },
+  "detailedInsurance": {
+    "policies": []
+  },
+  "adviceContext": {
+    "reasonsForAdvice": "Planning for my retirement;Helping children;Estate Planning;Risk Management",
+    "currentSituation": "",
+    "concerns": ""
+  },
+  "advisorInput": {
+    "analysis": "",
+    "recommendations": "",
+    "strategies": "",
+    "nextSteps": ""
+  }
+}
