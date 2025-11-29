@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -262,16 +261,20 @@ export function VariableMappingDialog({
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="w-full max-w-[1200px] min-h-[70vh] max-h-[90vh] flex flex-col overflow-hidden">
-        <DialogHeader>
-          <DialogTitle>Map Template Variables</DialogTitle>
-          <DialogDescription>
-            Review and edit how template placeholders map to client data for "{templateName}"
-          </DialogDescription>
-        </DialogHeader>
+      {/* !flex !flex-col override the default grid layout from DialogContent */}
+      <DialogContent className="!flex !flex-col w-full max-w-[1100px] h-[85vh] p-0 gap-0 overflow-hidden">
+        {/* Header section - fixed height, won't shrink */}
+        <div className="p-6 pb-4 flex-shrink-0">
+          <DialogHeader>
+            <DialogTitle>Map Template Variables</DialogTitle>
+            <DialogDescription>
+              Review and edit how template placeholders map to client data for "{templateName}"
+            </DialogDescription>
+          </DialogHeader>
+        </div>
         
-        {/* Stats Bar */}
-        <div className="flex items-center gap-4 py-3 px-4 bg-slate-50 rounded-lg text-sm">
+        {/* Stats Bar - fixed height */}
+        <div className="flex items-center gap-4 py-3 px-6 bg-slate-50 text-sm flex-shrink-0">
           <span className="text-slate-500">Mapping Status:</span>
           <div className="flex items-center gap-3">
             {mappingStats.high > 0 && (
@@ -301,9 +304,9 @@ export function VariableMappingDialog({
           </div>
         </div>
         
-        {/* Validation Warnings */}
+        {/* Validation Warnings - fixed height when shown */}
         {validationWarnings && !validationWarnings.valid && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+          <div className="mx-6 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800 flex-shrink-0">
             {validationWarnings.reason === "template_changed" && (
               <p>
                 <strong>Template has changed</strong> since the mapping was last saved.
@@ -320,91 +323,95 @@ export function VariableMappingDialog({
           </div>
         )}
         
-        {/* Mapping Table */}
-        <ScrollArea className="flex-1 min-h-0 max-h-[calc(90vh-280px)] border rounded-lg">
-          <Table>
-            <TableHeader className="sticky top-0 bg-white z-10">
-              <TableRow>
-                <TableHead className="w-1/4">Placeholder</TableHead>
-                <TableHead className="w-1/4">Status</TableHead>
-                <TableHead className="w-1/4">Mapped To</TableHead>
-                <TableHead className="w-1/4">Preview Value</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {displayMappings.map((mapping) => (
-                <TableRow 
-                  key={mapping.placeholder}
-                  className={mapping.confidence === "none" && !mapping.customValue ? "bg-red-50/50" : ""}
-                >
-                  <TableCell className="font-mono text-sm">
-                    {mapping.placeholder}
-                  </TableCell>
-                  <TableCell>
-                    {getConfidenceBadge(
-                      mapping.confidence,
-                      mapping.isCustom,
-                      !!mapping.customValue
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editingPlaceholder === mapping.placeholder ? (
-                      <div className="space-y-2">
-                        <Select
-                          value={mapping.mappedField || ""}
-                          onValueChange={(value) => handleFieldChange(mapping.placeholder, value)}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select field..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="">-- Custom Value --</SelectItem>
-                            {availableFields.map((field) => (
-                              <SelectItem key={field.path} value={field.path}>
-                                {field.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        {!mapping.mappedField && (
-                          <Input
-                            placeholder="Enter custom value..."
-                            value={mapping.customValue || ""}
-                            onChange={(e) => handleCustomValueChange(mapping.placeholder, e.target.value)}
-                          />
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setEditingPlaceholder(null)}
-                        >
-                          Done
-                        </Button>
-                      </div>
-                    ) : (
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer hover:text-blue-600"
-                        onClick={() => setEditingPlaceholder(mapping.placeholder)}
-                      >
-                        <span className="truncate max-w-[200px]">
-                          {mapping.isCustom
-                            ? mapping.customValue || "(click to set)"
-                            : availableFields.find((f) => f.path === mapping.mappedField)?.label || mapping.mappedField || "(click to set)"}
-                        </span>
-                        <Edit2 className="w-3 h-3 opacity-50" />
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-slate-600 truncate max-w-[200px]">
-                    {mapping.displayValue}
-                  </TableCell>
+        {/* Mapping Table - this is the scrollable area */}
+        {/* flex-1 takes remaining space, min-h-0 allows shrinking below content height */}
+        <div className="flex-1 min-h-0 mx-6 my-4 border rounded-lg overflow-hidden">
+          <div className="h-full overflow-y-auto">
+            <Table>
+              <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
+                <TableRow>
+                  <TableHead className="w-1/4">Placeholder</TableHead>
+                  <TableHead className="w-1/4">Status</TableHead>
+                  <TableHead className="w-1/4">Mapped To</TableHead>
+                  <TableHead className="w-1/4">Preview Value</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </ScrollArea>
+              </TableHeader>
+              <TableBody>
+                {displayMappings.map((mapping) => (
+                  <TableRow 
+                    key={mapping.placeholder}
+                    className={mapping.confidence === "none" && !mapping.customValue ? "bg-red-50/50" : ""}
+                  >
+                    <TableCell className="font-mono text-sm">
+                      {mapping.placeholder}
+                    </TableCell>
+                    <TableCell>
+                      {getConfidenceBadge(
+                        mapping.confidence,
+                        mapping.isCustom,
+                        !!mapping.customValue
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {editingPlaceholder === mapping.placeholder ? (
+                        <div className="space-y-2">
+                          <Select
+                            value={mapping.mappedField || ""}
+                            onValueChange={(value) => handleFieldChange(mapping.placeholder, value)}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue placeholder="Select field..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">-- Custom Value --</SelectItem>
+                              {availableFields.map((field) => (
+                                <SelectItem key={field.path} value={field.path}>
+                                  {field.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {!mapping.mappedField && (
+                            <Input
+                              placeholder="Enter custom value..."
+                              value={mapping.customValue || ""}
+                              onChange={(e) => handleCustomValueChange(mapping.placeholder, e.target.value)}
+                            />
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setEditingPlaceholder(null)}
+                          >
+                            Done
+                          </Button>
+                        </div>
+                      ) : (
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer hover:text-blue-600"
+                          onClick={() => setEditingPlaceholder(mapping.placeholder)}
+                        >
+                          <span className="truncate max-w-[200px]">
+                            {mapping.isCustom
+                              ? mapping.customValue || "(click to set)"
+                              : availableFields.find((f) => f.path === mapping.mappedField)?.label || mapping.mappedField || "(click to set)"}
+                          </span>
+                          <Edit2 className="w-3 h-3 opacity-50" />
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-slate-600 truncate max-w-[200px]">
+                      {mapping.displayValue}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
         
-        <DialogFooter className="flex-col sm:flex-row gap-4">
+        {/* Footer - fixed height, won't shrink */}
+        <DialogFooter className="flex-col sm:flex-row gap-4 p-6 pt-4 flex-shrink-0 border-t">
           <div className="flex items-center space-x-2 flex-1">
             <Checkbox
               id="save-mapping"
